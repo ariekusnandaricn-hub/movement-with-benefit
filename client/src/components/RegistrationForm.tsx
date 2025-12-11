@@ -206,7 +206,7 @@ export default function RegistrationForm() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
               <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-                Formulir Pendaftaran Audisi
+                Formulir Pendaftaran Audisi MWB 2026
               </span>
             </CardTitle>
             <p className="text-slate-300 text-center mt-2 text-sm">
