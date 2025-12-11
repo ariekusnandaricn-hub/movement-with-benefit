@@ -86,7 +86,7 @@ export default function RegistrationForm() {
       
       // Redirect to payment info page with registration and invoice data
       setTimeout(() => {
-        const paymentUrl = `/payment-info?registrationNumber=${data.registrationNumber}&invoiceId=${data.invoiceId}`;
+        const paymentUrl = `/payment-info?registrationNumber=${data.registrationNumber}&invoiceId=${data.invoiceId}&paymentAmount=${data.paymentAmount}`;
         setLocation(paymentUrl);
       }, 1500);
     },

@@ -6,8 +6,8 @@ import { z } from "zod";
 import { registrations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
-import { like, eq } from "drizzle-orm";
-import { getProvinceCode } from "./utils/provinceMapping";
+import { like, eq, and } from "drizzle-orm";
+import { generateInvoiceId, generatePaymentAmount, getCategoryCode } from "./utils/provinceCodeMapping";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -134,16 +134,22 @@ export const appRouter = router({
           paymentStatus: "pending",
         });
 
-        // Generate invoice ID: MWB-[URUTAN]-[KODE_PROVINSI]
-        const provinceCode = getProvinceCode(input.province) || "00";
-        const registrationCount = await db.select().from(registrations);
-        const sequentialNumber = String(registrationCount.length).padStart(4, "0");
-        const invoiceId = `MWB-${sequentialNumber}-${provinceCode}`;
+        // Generate invoice ID: MWB-[KATEGORI].[URUTAN].[KODE_PROVINSI]
+        // Count registrations for this category to get sequential number
+        const categoryRegistrations = await db
+          .select()
+          .from(registrations)
+          .where(eq(registrations.category, input.category));
+        
+        const sequentialNumber = categoryRegistrations.length + 1;
+        const invoiceId = generateInvoiceId(input.category, sequentialNumber, input.province);
+        const paymentAmount = generatePaymentAmount(invoiceId);
 
         return {
           success: true,
           registrationNumber,
           invoiceId,
+          paymentAmount,
           message: "Pendaftaran berhasil dibuat!"
         };
       }),

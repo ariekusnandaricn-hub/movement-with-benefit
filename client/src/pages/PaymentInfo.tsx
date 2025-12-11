@@ -13,6 +13,18 @@ export default function PaymentInfo() {
   const params = new URLSearchParams(search);
   const registrationNumber = params.get("registrationNumber");
   const invoiceId = params.get("invoiceId");
+  const paymentAmount = params.get("paymentAmount");
+  
+  // Format payment amount to Rp format
+  const formatPaymentAmount = (amount: string | null) => {
+    if (!amount) return "Rp 0";
+    const num = parseInt(amount, 10);
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(num);
+  };
 
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
@@ -162,7 +174,8 @@ export default function PaymentInfo() {
 
                 <div className="pt-2 border-t border-pink-500/20">
                   <p className="text-slate-400 text-sm">Jumlah Transfer</p>
-                  <p className="text-2xl font-bold text-pink-400 mt-1">Rp 250.000</p>
+                  <p className="text-2xl font-bold text-pink-400 mt-1">{formatPaymentAmount(paymentAmount)}</p>
+                  <p className="text-xs text-slate-400 mt-1">Invoice ID: {invoiceId}</p>
                 </div>
               </div>
             </div>
