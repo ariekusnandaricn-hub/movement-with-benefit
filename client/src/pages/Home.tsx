@@ -43,7 +43,7 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center bg-slate-900/60 backdrop-blur-sm border-b border-cyan-400/20">
         <div className="flex items-center gap-2 sm:gap-3">
           <img src="/images/logo.png" alt="MWB Logo" className="h-14 sm:h-16 md:h-14 w-auto" />
-          <div className="hidden sm:block">
+          <div>
             <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-tight">MOVEMENT</p>
             <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-tight">WITH BENEFIT</p>
           </div>
@@ -114,11 +114,11 @@ export default function Home() {
       {activeSection === "hero" && (
         <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
           {/* Background Map */}
-          <div className="absolute inset-0 opacity-30 sm:opacity-40">
+          <div className="absolute inset-0 opacity-30 sm:opacity-40 overflow-hidden">
             <img
               src="/images/map-indonesia.png"
               alt="Indonesia Map"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center sm:object-top"
             />
           </div>
 

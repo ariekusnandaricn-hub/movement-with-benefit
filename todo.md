@@ -47,6 +47,8 @@
 - [x] Floating DAFTAR button sized for mobile (w-24 h-24)
 - [x] Navigation menu optimization for mobile
 - [x] Contact info layout adjusted for small screens
+- [x] Added Movement with Benefit text to mobile header
+- [x] Fixed cropped map background on mobile devices
 
 ## Future Enhancements
 - [ ] Contestant gallery with voting system
