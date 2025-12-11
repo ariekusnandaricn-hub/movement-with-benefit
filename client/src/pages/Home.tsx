@@ -174,7 +174,7 @@ export default function Home() {
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-6 sm:mt-10 justify-center text-xs sm:text-sm px-2">
               <a
-                href="https://wa.me/082315660007"
+                href="https://wa.me/6282315660007"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
