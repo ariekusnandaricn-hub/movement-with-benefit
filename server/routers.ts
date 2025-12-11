@@ -69,8 +69,13 @@ export const appRouter = router({
         profession: z.string(),
         province: z.string(),
         category: z.enum(["Acting", "Vocal", "Model"]),
+        nik: z.string().optional().nullable(),
+        kiaNumber: z.string().optional().nullable(),
         photoBase64: z.string(),
         photoMimeType: z.string(),
+        parentalConsentBase64: z.string().optional().nullable(),
+        parentalConsentMimeType: z.string().optional().nullable(),
+        isMinor: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
@@ -92,6 +97,22 @@ export const appRouter = router({
           console.error("Failed to upload photo:", error);
         }
 
+        let parentalConsentLink = null;
+        if (input.parentalConsentBase64) {
+          try {
+            const parts = input.parentalConsentBase64.split(",");
+            const buffer = Buffer.from(parts[1], "base64");
+            const result = await storagePut(
+              `registrations/${registrationNumber}-parental-consent.pdf`,
+              buffer,
+              input.parentalConsentMimeType || "application/pdf"
+            );
+            parentalConsentLink = result.url;
+          } catch (error) {
+            console.error("Failed to upload parental consent:", error);
+          }
+        }
+
         await db.insert(registrations).values({
           registrationNumber,
           fullName: input.fullName,
@@ -104,7 +125,11 @@ export const appRouter = router({
           profession: input.profession,
           province: input.province,
           category: input.category,
+          nik: input.nik || null,
+          kiaNumber: input.kiaNumber || null,
           photoLink,
+          parentalConsentUrl: parentalConsentLink,
+          isMinor: input.isMinor || 0,
           paymentStatus: "pending",
         });
 

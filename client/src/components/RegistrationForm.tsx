@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, AlertCircle } from "lucide-react";
+import { useLocation } from "wouter";
 
 const INDONESIAN_PROVINCES = [
   "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Jambi", "Sumatera Selatan",
@@ -21,6 +22,7 @@ const INDONESIAN_PROVINCES = [
 ];
 
 export default function RegistrationForm() {
+  const [, setLocation] = useLocation();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -31,15 +33,37 @@ export default function RegistrationForm() {
     gender: "",
     profession: "",
     province: "",
-    category: ""
+    category: "",
+    nik: "",
+    kiaNumber: "",
   });
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [parentalConsentFile, setParentalConsentFile] = useState<File | null>(null);
+  const [parentalConsentPreview, setParentalConsentPreview] = useState<string | null>(null);
+
+  // Calculate age and determine if minor
+  const isMinor = useMemo(() => {
+    if (!formData.birthDate) return false;
+    const birthDate = new Date(formData.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age < 17;
+  }, [formData.birthDate]);
+
+  // Check if KIA and parental consent are required
+  const requiresKiaAndConsent = useMemo(() => {
+    return isMinor || !formData.nik;
+  }, [isMinor, formData.nik]);
 
   const createRegistration = trpc.registration.create.useMutation({
     onSuccess: (data: any) => {
-      toast.success("Pendaftaran berhasil dibuat!");
+      toast.success(`Pendaftaran berhasil! Nomor registrasi: ${data.registrationNumber}`);
       // Reset form
       setFormData({
         fullName: "",
@@ -51,10 +75,17 @@ export default function RegistrationForm() {
         gender: "",
         profession: "",
         province: "",
-        category: ""
+        category: "",
+        nik: "",
+        kiaNumber: "",
       });
       setPhotoFile(null);
       setPhotoPreview(null);
+      setParentalConsentFile(null);
+      setParentalConsentPreview(null);
+      
+      // Redirect to home after 2 seconds
+      setTimeout(() => setLocation("/"), 2000);
     },
     onError: (error: any) => {
       toast.error(error.message || "Gagal membuat pendaftaran");
@@ -73,6 +104,10 @@ export default function RegistrationForm() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Ukuran foto maksimal 5MB");
+        return;
+      }
       setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -82,10 +117,26 @@ export default function RegistrationForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleParentalConsentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Ukuran file maksimal 5MB");
+        return;
+      }
+      setParentalConsentFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setParentalConsentPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validasi
+    // Validasi field wajib
     if (!formData.fullName || !formData.email || !formData.address || !formData.birthPlace || 
         !formData.birthDate || !formData.whatsappNumber || !formData.gender || 
         !formData.profession || !formData.province || !formData.category) {
@@ -93,233 +144,382 @@ export default function RegistrationForm() {
       return;
     }
 
-    // Validasi file upload
+    // Validasi foto
     if (!photoFile) {
       toast.error("Foto terbaru wajib diupload!");
       return;
     }
 
-    // Validasi nomor WhatsApp
-    if (!formData.whatsappNumber.match(/^(\+62|62|0)[0-9]{9,12}$/)) {
-      toast.error("Format nomor WhatsApp tidak valid!");
-      return;
+    // Validasi untuk minor atau tanpa NIK
+    if (requiresKiaAndConsent) {
+      if (!formData.kiaNumber) {
+        toast.error("Nomor KIA wajib diisi untuk peserta di bawah 17 tahun atau tanpa NIK");
+        return;
+      }
+      if (!parentalConsentFile) {
+        toast.error("Surat izin orang tua wajib diupload untuk peserta di bawah 17 tahun atau tanpa NIK");
+        return;
+      }
     }
 
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const photoBase64 = reader.result as string;
-      
-      createRegistration.mutate({
-        ...formData,
-        photoBase64,
-        photoMimeType: photoFile.type,
-      } as any);
-    };
-    
-    reader.readAsDataURL(photoFile);
+    // Convert files to base64
+    const photoBase64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(photoFile);
+    });
+
+    let parentalConsentBase64 = "";
+    if (parentalConsentFile) {
+      parentalConsentBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(parentalConsentFile);
+      });
+    }
+
+    createRegistration.mutate({
+      fullName: formData.fullName,
+      email: formData.email,
+      address: formData.address,
+      birthPlace: formData.birthPlace,
+      birthDate: formData.birthDate,
+      whatsappNumber: formData.whatsappNumber,
+      gender: formData.gender as "Laki-laki" | "Perempuan",
+      profession: formData.profession,
+      province: formData.province,
+      category: formData.category as "Acting" | "Vocal" | "Model",
+      nik: formData.nik || null,
+      kiaNumber: formData.kiaNumber || null,
+      photoBase64,
+      photoMimeType: photoFile.type,
+      parentalConsentBase64: parentalConsentBase64 || null,
+      parentalConsentMimeType: parentalConsentFile?.type || null,
+      isMinor: isMinor ? 1 : 0,
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-20">
-      <div className="container mx-auto px-6 max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-12 px-4">
+      <div className="max-w-2xl mx-auto">
         <Card className="bg-slate-800/50 border-cyan-400/20">
           <CardHeader>
-            <CardTitle className="text-3xl font-mono text-center">
-              <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-                FORM PENDAFTARAN
+            <CardTitle className="text-2xl font-bold text-center">
+              <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                Formulir Pendaftaran Audisi
               </span>
             </CardTitle>
+            <p className="text-slate-300 text-center mt-2 text-sm">
+              Isi formulir berikut untuk mendaftar sebagai peserta audisi
+            </p>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Full Name */}
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-cyan-400">Nama Lengkap</Label>
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan nama lengkap"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
+              {/* Informasi Pribadi */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Informasi Pribadi</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fullName" className="text-slate-300">Nama Lengkap *</Label>
+                    <Input
+                      id="fullName"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                      placeholder="Masukkan nama lengkap"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-slate-300">Email *</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                      placeholder="Masukkan email"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="birthPlace" className="text-slate-300">Tempat Lahir *</Label>
+                    <Input
+                      id="birthPlace"
+                      name="birthPlace"
+                      value={formData.birthPlace}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                      placeholder="Masukkan tempat lahir"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="birthDate" className="text-slate-300">Tanggal Lahir *</Label>
+                    <Input
+                      id="birthDate"
+                      name="birthDate"
+                      type="date"
+                      value={formData.birthDate}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="gender" className="text-slate-300">Jenis Kelamin *</Label>
+                    <Select value={formData.gender} onValueChange={(value) => handleSelectChange("gender", value)}>
+                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                        <SelectValue placeholder="Pilih jenis kelamin" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-700 border-slate-600">
+                        <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                        <SelectItem value="Perempuan">Perempuan</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="whatsappNumber" className="text-slate-300">Nomor WhatsApp *</Label>
+                    <Input
+                      id="whatsappNumber"
+                      name="whatsappNumber"
+                      value={formData.whatsappNumber}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                      placeholder="Masukkan nomor WhatsApp"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-cyan-400">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan email"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
+              {/* Alamat dan Lokasi */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Alamat dan Lokasi</h3>
+                
+                <div>
+                  <Label htmlFor="address" className="text-slate-300">Alamat Lengkap *</Label>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    placeholder="Masukkan alamat lengkap"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="province" className="text-slate-300">Provinsi *</Label>
+                  <Select value={formData.province} onValueChange={(value) => handleSelectChange("province", value)}>
+                    <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                      <SelectValue placeholder="Pilih provinsi" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-700 border-slate-600 max-h-64">
+                      {INDONESIAN_PROVINCES.map((prov) => (
+                        <SelectItem key={prov} value={prov}>{prov}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* WhatsApp Number */}
-              <div className="space-y-2">
-                <Label htmlFor="whatsappNumber" className="text-cyan-400">Nomor WhatsApp</Label>
-                <Input
-                  id="whatsappNumber"
-                  name="whatsappNumber"
-                  value={formData.whatsappNumber}
-                  onChange={handleInputChange}
-                  placeholder="Contoh: 0812345678"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
+              {/* Informasi Pekerjaan */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Informasi Pekerjaan</h3>
+                
+                <div>
+                  <Label htmlFor="profession" className="text-slate-300">Profesi/Pekerjaan *</Label>
+                  <Input
+                    id="profession"
+                    name="profession"
+                    value={formData.profession}
+                    onChange={handleInputChange}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    placeholder="Masukkan profesi atau pekerjaan"
+                  />
+                </div>
               </div>
 
-              {/* Gender */}
-              <div className="space-y-2">
-                <Label htmlFor="gender" className="text-cyan-400">Jenis Kelamin</Label>
-                <Select value={formData.gender} onValueChange={(value) => handleSelectChange("gender", value)}>
-                  <SelectTrigger className="bg-slate-700/50 border-cyan-400/20 text-white">
-                    <SelectValue placeholder="Pilih jenis kelamin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Laki-laki">Laki-laki</SelectItem>
-                    <SelectItem value="Perempuan">Perempuan</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Informasi Audisi */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Informasi Audisi</h3>
+                
+                <div>
+                  <Label htmlFor="category" className="text-slate-300">Kategori Audisi *</Label>
+                  <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                    <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                      <SelectValue placeholder="Pilih kategori" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-700 border-slate-600">
+                      <SelectItem value="Acting">Acting</SelectItem>
+                      <SelectItem value="Vocal">Vocal</SelectItem>
+                      <SelectItem value="Model">Model</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Birth Place */}
-              <div className="space-y-2">
-                <Label htmlFor="birthPlace" className="text-cyan-400">Tempat Lahir</Label>
-                <Input
-                  id="birthPlace"
-                  name="birthPlace"
-                  value={formData.birthPlace}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan tempat lahir"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
+              {/* Identitas */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Identitas</h3>
+                
+                <div>
+                  <Label htmlFor="nik" className="text-slate-300">NIK (Nomor Induk Kependudukan)</Label>
+                  <Input
+                    id="nik"
+                    name="nik"
+                    value={formData.nik}
+                    onChange={handleInputChange}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                    placeholder="Masukkan NIK (16 digit)"
+                    maxLength={16}
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Opsional - Jika tidak memiliki NIK, silakan isi KIA</p>
+                </div>
               </div>
 
-              {/* Birth Date */}
-              <div className="space-y-2">
-                <Label htmlFor="birthDate" className="text-cyan-400">Tanggal Lahir</Label>
-                <Input
-                  id="birthDate"
-                  name="birthDate"
-                  type="date"
-                  value={formData.birthDate}
-                  onChange={handleInputChange}
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
-              </div>
-
-              {/* Profession */}
-              <div className="space-y-2">
-                <Label htmlFor="profession" className="text-cyan-400">Profesi</Label>
-                <Input
-                  id="profession"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan profesi"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
-              </div>
-
-              {/* Province */}
-              <div className="space-y-2">
-                <Label htmlFor="province" className="text-cyan-400">Provinsi</Label>
-                <Select value={formData.province} onValueChange={(value) => handleSelectChange("province", value)}>
-                  <SelectTrigger className="bg-slate-700/50 border-cyan-400/20 text-white">
-                    <SelectValue placeholder="Pilih provinsi" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDONESIAN_PROVINCES.map((province) => (
-                      <SelectItem key={province} value={province}>{province}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-cyan-400">Kategori</Label>
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                  <SelectTrigger className="bg-slate-700/50 border-cyan-400/20 text-white">
-                    <SelectValue placeholder="Pilih kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Acting">Acting</SelectItem>
-                    <SelectItem value="Vocal">Vocal</SelectItem>
-                    <SelectItem value="Model">Model</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Address */}
-              <div className="space-y-2">
-                <Label htmlFor="address" className="text-cyan-400">Alamat</Label>
-                <Textarea
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan alamat lengkap"
-                  className="bg-slate-700/50 border-cyan-400/20 text-white"
-                />
-              </div>
-
-              {/* Photo Upload */}
-              <div className="space-y-2">
-                <Label htmlFor="photo" className="text-cyan-400">Foto Terbaru</Label>
-                <div className="border-2 border-dashed border-cyan-400/30 rounded-lg p-6 text-center hover:border-cyan-400/50 transition-colors">
-                  {photoPreview ? (
-                    <div className="space-y-4">
-                      <img src={photoPreview} alt="Preview" className="w-32 h-32 object-cover rounded mx-auto" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPhotoFile(null);
-                          setPhotoPreview(null);
-                        }}
-                        className="text-cyan-400 hover:text-cyan-300 flex items-center gap-2 mx-auto"
-                      >
-                        <X size={16} /> Hapus foto
-                      </button>
+              {/* Conditional Fields untuk Minor atau Tanpa NIK */}
+              {requiresKiaAndConsent && (
+                <div className="space-y-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <div className="flex gap-2 items-start">
+                    <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-yellow-400">Dokumen Tambahan Diperlukan</h3>
+                      <p className="text-sm text-yellow-300 mt-1">
+                        {isMinor ? "Anda berusia di bawah 17 tahun" : "Anda tidak memiliki NIK"}. Silakan lengkapi dokumen berikut:
+                      </p>
                     </div>
-                  ) : (
-                    <label className="cursor-pointer">
-                      <div className="flex flex-col items-center gap-2">
-                        <Upload size={32} className="text-cyan-400" />
-                        <span className="text-cyan-400">Klik untuk upload foto</span>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="kiaNumber" className="text-slate-300">Nomor KIA (Kartu Identitas Anak) *</Label>
+                    <Input
+                      id="kiaNumber"
+                      name="kiaNumber"
+                      value={formData.kiaNumber}
+                      onChange={handleInputChange}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+                      placeholder="Masukkan nomor KIA"
+                      maxLength={16}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="parentalConsent" className="text-slate-300">Surat Izin Orang Tua *</Label>
+                    <div className="mt-2">
+                      <label className="flex items-center justify-center w-full px-4 py-6 bg-slate-700/50 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700/70 transition-colors">
+                        <div className="flex flex-col items-center justify-center">
+                          <Upload className="w-8 h-8 text-cyan-400 mb-2" />
+                          <span className="text-sm text-slate-300">
+                            {parentalConsentPreview ? "Ganti file" : "Klik untuk upload"}
+                          </span>
+                          <span className="text-xs text-slate-400 mt-1">JPG, PNG atau PDF (Max 5MB)</span>
+                        </div>
+                        <input
+                          id="parentalConsent"
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={handleParentalConsentChange}
+                          className="hidden"
+                        />
+                      </label>
+                      {parentalConsentPreview && (
+                        <div className="mt-3 p-3 bg-slate-700/50 rounded-lg flex items-center justify-between">
+                          <span className="text-sm text-slate-300 truncate">{parentalConsentFile?.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setParentalConsentFile(null);
+                              setParentalConsentPreview(null);
+                            }}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Foto */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-cyan-400">Foto Terbaru</h3>
+                
+                <div>
+                  <Label htmlFor="photo" className="text-slate-300">Upload Foto *</Label>
+                  <div className="mt-2">
+                    <label className="flex items-center justify-center w-full px-4 py-6 bg-slate-700/50 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700/70 transition-colors">
+                      <div className="flex flex-col items-center justify-center">
+                        <Upload className="w-8 h-8 text-cyan-400 mb-2" />
+                        <span className="text-sm text-slate-300">
+                          {photoPreview ? "Ganti foto" : "Klik untuk upload"}
+                        </span>
+                        <span className="text-xs text-slate-400 mt-1">JPG atau PNG (Max 5MB)</span>
                       </div>
                       <input
                         id="photo"
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png"
                         onChange={handlePhotoChange}
                         className="hidden"
                       />
                     </label>
-                  )}
+                    {photoPreview && (
+                      <div className="mt-3 relative">
+                        <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPhotoFile(null);
+                            setPhotoPreview(null);
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={createRegistration.isPending}
-                className="w-full bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg py-6"
-              >
-                {createRegistration.isPending ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2" size={20} />
-                    Sedang memproses...
-                  </>
-                ) : (
-                  "Daftar Sekarang"
-                )}
-              </Button>
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="submit"
+                  disabled={createRegistration.isPending}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-bold hover:shadow-lg hover:shadow-pink-500/50"
+                >
+                  {createRegistration.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Memproses...
+                    </>
+                  ) : (
+                    "Daftar Sekarang"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setLocation("/")}
+                  variant="outline"
+                  className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10"
+                >
+                  Kembali
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
