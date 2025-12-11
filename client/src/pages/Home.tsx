@@ -381,7 +381,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-2xl font-mono font-bold text-cyan-400">Igo Pentury</h3>
                     <p className="text-slate-300 font-semibold">Mentor Vokal</p>
-                    <p className="text-slate-400 text-sm mt-2">Penyanyi pemenang Indonesian Idol 2010 dengan pengalaman musik profesional. Siap membimbing peserta kategori Vokal dengan teknik vokal dan interpretasi lagu.</p>
+                    <p className="text-slate-400 text-sm mt-2">Penyanyi pemenang pertama Indonesian Idol musim keenam (2010) dengan pengalaman musik profesional. Siap membimbing peserta kategori Vokal dengan teknik vokal dan interpretasi lagu.</p>
                     <a
                       href="https://www.instagram.com/igopentury_real"
                       target="_blank"
