@@ -7,6 +7,7 @@ import { registrations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
 import { like, eq } from "drizzle-orm";
+import { getProvinceCode } from "./utils/provinceMapping";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -133,10 +134,55 @@ export const appRouter = router({
           paymentStatus: "pending",
         });
 
+        // Generate invoice ID: MWB-[URUTAN]-[KODE_PROVINSI]
+        const provinceCode = getProvinceCode(input.province) || "00";
+        const registrationCount = await db.select().from(registrations);
+        const sequentialNumber = String(registrationCount.length).padStart(4, "0");
+        const invoiceId = `MWB-${sequentialNumber}-${provinceCode}`;
+
         return {
           success: true,
           registrationNumber,
+          invoiceId,
           message: "Pendaftaran berhasil dibuat!"
+        };
+      }),
+    uploadPaymentProof: publicProcedure
+      .input(z.object({
+        registrationNumber: z.string(),
+        paymentProofBase64: z.string(),
+        paymentProofMimeType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        let paymentProofLink = null;
+        try {
+          const parts = input.paymentProofBase64.split(",");
+          const buffer = Buffer.from(parts[1], "base64");
+          const result = await storagePut(
+            `payments/${input.registrationNumber}-proof.jpg`,
+            buffer,
+            input.paymentProofMimeType
+          );
+          paymentProofLink = result.url;
+        } catch (error) {
+          console.error("Failed to upload payment proof:", error);
+          throw new Error("Gagal mengupload bukti pembayaran");
+        }
+
+        // Update payment status
+        await db.update(registrations)
+          .set({
+            paymentProofUrl: paymentProofLink,
+            paymentStatus: "pending_verification",
+          })
+          .where(eq(registrations.registrationNumber, input.registrationNumber));
+
+        return {
+          success: true,
+          message: "Bukti pembayaran berhasil diupload!"
         };
       }),
   }),

@@ -84,8 +84,11 @@ export default function RegistrationForm() {
       setParentalConsentFile(null);
       setParentalConsentPreview(null);
       
-      // Redirect to home after 2 seconds
-      setTimeout(() => setLocation("/"), 2000);
+      // Redirect to payment info page with registration and invoice data
+      setTimeout(() => {
+        const paymentUrl = `/payment-info?registrationNumber=${data.registrationNumber}&invoiceId=${data.invoiceId}`;
+        setLocation(paymentUrl);
+      }, 1500);
     },
     onError: (error: any) => {
       toast.error(error.message || "Gagal membuat pendaftaran");
