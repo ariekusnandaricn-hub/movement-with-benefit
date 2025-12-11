@@ -123,7 +123,7 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div className="relative z-10 container mx-auto px-6 py-20 flex flex-col items-center justify-center text-center">
+          <div className="relative z-10 container mx-auto px-6 py-20 pb-32 sm:pb-20 flex flex-col items-center justify-center text-center">
             {/* Logo */}
             <div className="mb-6 sm:mb-10 md:mb-12">
               <img src="/images/logo.png" alt="Movement with Benefit" className="h-32 sm:h-40 md:h-48 mx-auto" />
@@ -220,9 +220,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating DAFTAR Button (Bottom Right) */}
-          <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-20">
-            <button className="w-24 h-24 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-mono font-bold text-xs sm:text-sm text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
+          {/* Floating DAFTAR Button (Bottom Right) - Hidden on mobile, shown on desktop */}
+          <div className="hidden sm:block fixed bottom-8 right-8 z-40">
+            <button onClick={() => setLocation("/register")} className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-mono font-bold text-sm text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
               DAFTAR
             </button>
           </div>

@@ -10,6 +10,7 @@ import { like, eq, and } from "drizzle-orm";
 import { generateInvoiceId, generatePaymentAmount, getCategoryCode, generateParticipantNumber } from "./utils/provinceCodeMapping";
 import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
+import { sendPaymentVerificationEmailViaResend } from "./utils/resendEmailService";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -165,14 +166,27 @@ export const appRouter = router({
 
         // Send automatic notifications for testing
         try {
-          await sendPaymentVerificationEmail(
+          // Try to send via Resend first
+          const emailSent = await sendPaymentVerificationEmailViaResend(
             input.email,
             input.fullName,
             input.category,
-            participantNumber,
             invoiceId,
+            participantNumber,
             paymentAmount
           );
+          
+          // Fallback to local email service if Resend fails
+          if (!emailSent) {
+            await sendPaymentVerificationEmail(
+              input.email,
+              input.fullName,
+              input.category,
+              participantNumber,
+              invoiceId,
+              paymentAmount
+            );
+          }
           
           await sendPaymentVerificationWhatsApp(
             input.whatsappNumber,
