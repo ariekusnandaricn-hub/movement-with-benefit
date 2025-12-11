@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
  * - All sections accessible via top menu
  */
 
-type Section = "hero" | "about" | "guest" | "judges" | "timeline" | "peserta" | "voter";
+type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter";
 
 export default function Home() {
   // The userAuth hooks provides authentication state
@@ -26,7 +26,8 @@ export default function Home() {
   const menuItems = [
     { id: "about", label: "About" },
     { id: "guest", label: "Guest & Host" },
-    { id: "judges", label: "Judges" },
+    { id: "judges", label: "Juri" },
+    { id: "mentor", label: "Mentor" },
     { id: "timeline", label: "Timeline" },
     { id: "peserta", label: "Peserta" },
     { id: "voter", label: "Voter" },
@@ -306,7 +307,7 @@ export default function Home() {
           <div className="relative z-10 container mx-auto px-6 space-y-12">
             <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
               <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-                JURI & MENTOR
+                JURI
               </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -317,7 +318,33 @@ export default function Home() {
                     <p className="text-slate-300">{category}</p>
                     <p className="text-slate-400 text-sm">Coming Soon</p>
                   </div>
-                  <div className="space-y-4 pt-4 border-t border-cyan-400/20">
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Mentor Section */}
+      {activeSection === "mentor" && (
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="/images/map-indonesia.png"
+              alt="Indonesia Map"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative z-10 container mx-auto px-6 space-y-12">
+            <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
+              <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
+                MENTOR
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {["Acting", "Vocal", "Model"].map((category) => (
+                <div key={category} className="text-center space-y-6">
+                  <div className="space-y-4">
                     <h3 className="text-xl font-mono font-bold text-cyan-400">Mentor</h3>
                     <p className="text-slate-300">{category}</p>
                     <p className="text-slate-400 text-sm">Coming Soon</p>
