@@ -114,11 +114,11 @@ export default function Home() {
       {activeSection === "hero" && (
         <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
           {/* Background Map */}
-          <div className="absolute inset-0 opacity-30 sm:opacity-40 overflow-hidden">
+          <div className="absolute inset-0 opacity-30 sm:opacity-40 flex items-center justify-center">
             <img
               src="/images/map-indonesia.png"
               alt="Indonesia Map"
-              className="w-full h-full object-cover object-center sm:object-top"
+              className="w-full h-full object-contain object-center"
             />
           </div>
 

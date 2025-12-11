@@ -49,6 +49,7 @@
 - [x] Contact info layout adjusted for small screens
 - [x] Added Movement with Benefit text to mobile header
 - [x] Fixed cropped map background on mobile devices
+- [x] Adjusted map background to show complete Indonesia archipelago (object-contain)
 
 ## Future Enhancements
 - [ ] Contestant gallery with voting system
