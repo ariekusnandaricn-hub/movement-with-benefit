@@ -348,14 +348,14 @@ export default function Home() {
                   <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
                     <img
                       src="/images/mentor-mario-conk.jpg"
-                      alt="Mario Conk"
+                      alt="Mario Aconk"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Mario Conk</h3>
+                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Mario Aconk</h3>
                     <p className="text-slate-300 font-semibold">Mentor Acting</p>
-                    <p className="text-slate-400 text-sm mt-2">Mario Maulana (Mario Conk) adalah aktor berpengalaman yang lahir 11 Maret 1981 di Bandar Lampung. Dikenal dari film-film ternama seperti Viva JKT48 (2014), My Love My Enemy (2021), dan Wanita Istimewa (2025). Siap membimbing peserta kategori Acting dengan teknik akting profesional.</p>
+                    <p className="text-slate-400 text-sm mt-2">Mario Maulana (Mario Aconk) adalah aktor berpengalaman yang lahir 11 Maret 1981 di Bandar Lampung. Dikenal dari film-film ternama seperti Viva JKT48 (2014), My Love My Enemy (2021), dan Wanita Istimewa (2025). Siap membimbing peserta kategori Acting dengan teknik akting profesional.</p>
                     <a
                       href="https://www.instagram.com/marioaconk"
                       target="_blank"
