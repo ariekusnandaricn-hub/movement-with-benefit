@@ -25,14 +25,22 @@ export function generatePaymentVerificationMessage(
   participantName: string,
   category: string,
   invoiceId: string,
-  participantNumber: string
+  participantNumber: string,
+  paymentAmount?: number
 ): string {
-  return `Selamat ${participantName}! 🎉
+  let message = `Selamat ${participantName}! 🎉
 
 Anda telah terdaftar sebagai peserta audisi *${category}* di Movement with Benefit 2026.
 
 *Nomor Peserta:* ${participantNumber}
-*Invoice ID:* ${invoiceId}
+*Invoice ID:* ${invoiceId}`;
+
+  if (paymentAmount) {
+    message += `
+*Jumlah Pembayaran:* Rp ${paymentAmount.toLocaleString('id-ID')}`;
+  }
+
+  message += `
 
 Simpan nomor peserta ini sebagai nomor registrasi ulang ketika babak penyisihan.
 
@@ -42,6 +50,8 @@ Terima kasih telah menjadi bagian dari Movement with Benefit 2026! 🎭
 
 Hubungi kami: info@movementwithbenefit.id
 📱 082315660007`;
+
+  return message;
 }
 
 /**
@@ -67,7 +77,7 @@ Hubungi kami jika ada pertanyaan:
 }
 
 /**
- * Send WhatsApp notification via Manus API
+ * Send WhatsApp notification via Manus built-in API
  * Menggunakan Manus built-in WhatsApp integration
  */
 export async function sendWhatsAppNotification(
@@ -78,27 +88,28 @@ export async function sendWhatsAppNotification(
     // Format phone number to international format
     const formattedPhone = formatWhatsAppNumber(phoneNumber);
 
-    // Call Manus WhatsApp API
-    // Endpoint: POST /api/whatsapp/send
+    // Call Manus built-in notification API for WhatsApp
     const response = await fetch(
-      `${process.env.MANUS_API_URL || "http://localhost:3000"}/api/whatsapp/send`,
+      `${process.env.VITE_ANALYTICS_ENDPOINT}/api/notifications/whatsapp`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.MANUS_API_KEY}`,
+          Authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
         },
         body: JSON.stringify({
           phoneNumber: formattedPhone,
           message: message,
+          from: "Movement with Benefit",
         }),
       }
     );
 
     if (!response.ok) {
+      const error = await response.text();
       console.error(
         `Gagal mengirim WhatsApp ke ${formattedPhone}:`,
-        response.statusText
+        error
       );
       return false;
     }
@@ -119,13 +130,15 @@ export async function sendPaymentVerificationWhatsApp(
   participantName: string,
   category: string,
   invoiceId: string,
-  participantNumber: string
+  participantNumber: string,
+  paymentAmount?: number
 ): Promise<boolean> {
   const message = generatePaymentVerificationMessage(
     participantName,
     category,
     invoiceId,
-    participantNumber
+    participantNumber,
+    paymentAmount
   );
   return sendWhatsAppNotification(phoneNumber, message);
 }

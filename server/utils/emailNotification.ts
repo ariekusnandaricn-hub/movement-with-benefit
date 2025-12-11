@@ -1,22 +1,8 @@
 /**
  * Email Notification Service
  * Mengirim email notifikasi kepada peserta setelah verifikasi pembayaran admin
+ * Menggunakan Manus Built-in Notification API
  */
-
-import nodemailer from "nodemailer";
-
-// Email configuration
-const emailConfig = {
-  from: "info@movementwithbenefit.id",
-  service: "gmail", // Menggunakan Gmail SMTP
-  auth: {
-    user: process.env.EMAIL_USER || "info@movementwithbenefit.id",
-    pass: process.env.EMAIL_PASSWORD || "",
-  },
-};
-
-// Create transporter
-const transporter = nodemailer.createTransport(emailConfig);
 
 /**
  * Generate email HTML template untuk notifikasi verifikasi pembayaran
@@ -25,7 +11,8 @@ export function generatePaymentVerificationEmailTemplate(
   participantName: string,
   category: string,
   invoiceId: string,
-  participantNumber: string
+  participantNumber: string,
+  paymentAmount?: number
 ): string {
   return `
     <!DOCTYPE html>
@@ -154,6 +141,13 @@ export function generatePaymentVerificationEmailTemplate(
             <div class="info-label">💳 Invoice ID</div>
             <div class="info-value">${invoiceId}</div>
           </div>
+
+          ${paymentAmount ? `
+          <div class="info-box">
+            <div class="info-label">💰 Jumlah Pembayaran</div>
+            <div class="info-value">Rp ${paymentAmount.toLocaleString('id-ID')}</div>
+          </div>
+          ` : ''}
           
           <div class="important-text">
             ⚠️ <strong>Penting:</strong> Pembayaran harus dikonfirmasi dalam maksimal 1x24 jam. Jika pembayaran tidak dikonfirmasi, registrasi Anda akan dibatalkan.
@@ -186,31 +180,49 @@ export function generatePaymentVerificationEmailTemplate(
 }
 
 /**
- * Send payment verification email
+ * Send payment verification email using Manus Notification API
  */
 export async function sendPaymentVerificationEmail(
   recipientEmail: string,
   participantName: string,
   category: string,
   invoiceId: string,
-  participantNumber: string
+  participantNumber: string,
+  paymentAmount?: number
 ): Promise<boolean> {
   try {
     const htmlContent = generatePaymentVerificationEmailTemplate(
       participantName,
       category,
       invoiceId,
-      participantNumber
+      participantNumber,
+      paymentAmount
     );
 
-    const mailOptions = {
-      from: emailConfig.from,
-      to: recipientEmail,
-      subject: `Selamat! Anda Terdaftar di Movement with Benefit 2026 - ${category}`,
-      html: htmlContent,
-    };
+    // Use Manus built-in notification API
+    const response = await fetch(
+      `${process.env.VITE_ANALYTICS_ENDPOINT}/api/notifications/email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
+        },
+        body: JSON.stringify({
+          to: recipientEmail,
+          subject: `Selamat! Anda Terdaftar di Movement with Benefit 2026 - ${category}`,
+          html: htmlContent,
+          from: 'noreply@movementwithbenefit.id',
+        }),
+      }
+    );
 
-    await transporter.sendMail(mailOptions);
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gagal mengirim email via Manus API:", error);
+      return false;
+    }
+
     console.log(`Email berhasil dikirim ke ${recipientEmail}`);
     return true;
   } catch (error) {
@@ -220,7 +232,7 @@ export async function sendPaymentVerificationEmail(
 }
 
 /**
- * Send payment reminder email (24 jam deadline)
+ * Send payment reminder email using Manus Notification API (24 jam deadline)
  */
 export async function sendPaymentReminderEmail(
   recipientEmail: string,
@@ -260,14 +272,29 @@ export async function sendPaymentReminderEmail(
       </html>
     `;
 
-    const mailOptions = {
-      from: emailConfig.from,
-      to: recipientEmail,
-      subject: `⏰ REMINDER: Deadline Pembayaran Movement with Benefit 2026 - ${invoiceId}`,
-      html: htmlContent,
-    };
+    const response = await fetch(
+      `${process.env.VITE_ANALYTICS_ENDPOINT}/api/notifications/email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
+        },
+        body: JSON.stringify({
+          to: recipientEmail,
+          subject: `⏰ REMINDER: Deadline Pembayaran Movement with Benefit 2026 - ${invoiceId}`,
+          html: htmlContent,
+          from: 'noreply@movementwithbenefit.id',
+        }),
+      }
+    );
 
-    await transporter.sendMail(mailOptions);
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Gagal mengirim email reminder via Manus API:", error);
+      return false;
+    }
+
     console.log(`Email reminder berhasil dikirim ke ${recipientEmail}`);
     return true;
   } catch (error) {

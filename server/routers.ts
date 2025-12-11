@@ -233,7 +233,8 @@ export const appRouter = router({
               reg.fullName,
               reg.category,
               reg.invoiceId || "",
-              reg.registrationNumber
+              reg.registrationNumber,
+              reg.invoiceAmount || undefined
             );
 
             await sendPaymentVerificationWhatsApp(
@@ -241,7 +242,8 @@ export const appRouter = router({
               reg.fullName,
               reg.category,
               reg.invoiceId || "",
-              reg.registrationNumber
+              reg.registrationNumber,
+              reg.invoiceAmount || undefined
             );
           } catch (error) {
             console.error("Error sending notifications:", error);

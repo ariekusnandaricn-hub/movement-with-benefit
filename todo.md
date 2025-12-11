@@ -25,6 +25,9 @@
 - [x] **Total: 40 tests passing** ✅
 - [x] Payment amount calculation bug fixed
 - [x] WhatsApp notification module import fixed
+- [x] Integrated Manus built-in notification API for email
+- [x] Integrated Manus built-in notification API for WhatsApp
+- [x] Updated notification functions to use Manus API endpoints
 
 ## Future Enhancements
 - [ ] Contestant gallery with voting system
