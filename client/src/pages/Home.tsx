@@ -167,30 +167,47 @@ export default function Home() {
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row gap-4 mt-12 justify-center">
               <a
-                href="https://wa.me/"
+                href="https://wa.me/082315660007"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 <MessageCircle size={20} />
                 <span className="font-mono text-sm">📱 WhatsApp Info</span>
               </a>
               <a
-                href="mailto:info@movementwithbenefit.id"
+                href="mailto:movementwithbenefit@gmail.com"
                 className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 <Mail size={20} />
-                <span className="font-mono text-sm">info@movementwithbenefit.id</span>
+                <span className="font-mono text-sm">movementwithbenefit@gmail.com</span>
               </a>
             </div>
 
             {/* Social Links */}
             <div className="flex gap-6 mt-8">
-              <a href="#" className="text-cyan-400 hover:text-pink-500 transition-colors">
+              <a
+                href="https://www.tiktok.com/@movementwithbenefit?_r=1&_t=ZS-917gEPwrQ1K"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-400 hover:text-pink-500 transition-colors"
+              >
                 <span className="font-mono text-sm">TikTok</span>
               </a>
-              <a href="#" className="text-cyan-400 hover:text-pink-500 transition-colors">
+              <a
+                href="https://www.instagram.com/movementwithbenefit?igsh=YzRzbmk3cDdzejZs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-400 hover:text-pink-500 transition-colors"
+              >
                 <span className="font-mono text-sm">Instagram</span>
               </a>
-              <a href="#" className="text-cyan-400 hover:text-pink-500 transition-colors">
+              <a
+                href="https://youtube.com/@movementwithbenefit1?si=qcbhUcmMytJYYdM0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-400 hover:text-pink-500 transition-colors"
+              >
                 <span className="font-mono text-sm">YouTube</span>
               </a>
             </div>
