@@ -407,7 +407,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-2xl font-mono font-bold text-cyan-400">Velisya Sonya</h3>
                     <p className="text-slate-300 font-semibold">Mentor Model</p>
-                    <p className="text-slate-400 text-sm mt-2">Model profesional dan multi-talented talent dengan pengalaman di ajang kecantikan internasional. Siap membimbing peserta kategori Model dengan postur, catwalk, dan presentation skills.</p>
+                    <p className="text-slate-400 text-sm mt-2">Model profesional dan multi-talented talent dengan pengalaman di ajang kecantikan internasional. 2nd Runner-Up Miss Universe Asia 2025. Siap membimbing peserta kategori Model dengan postur, catwalk, dan presentation skills.</p>
                     <a
                       href="https://www.instagram.com/velisya.sonya"
                       target="_blank"
