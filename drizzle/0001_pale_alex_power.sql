@@ -1,0 +1,63 @@
+CREATE TABLE `contestants` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`registrationId` int NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`category` enum('Acting','Vocal','Model') NOT NULL,
+	`province` varchar(100) NOT NULL,
+	`photoUrl` text,
+	`bio` text,
+	`voteCount` int NOT NULL DEFAULT 0,
+	`status` enum('active','inactive') NOT NULL DEFAULT 'active',
+	`contestantNumber` varchar(10) NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `contestants_id` PRIMARY KEY(`id`),
+	CONSTRAINT `contestants_contestantNumber_unique` UNIQUE(`contestantNumber`)
+);
+--> statement-breakpoint
+CREATE TABLE `registrations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`registrationNumber` varchar(50) NOT NULL,
+	`fullName` varchar(255) NOT NULL,
+	`email` varchar(320) NOT NULL,
+	`address` text NOT NULL,
+	`birthPlace` varchar(255) NOT NULL,
+	`birthDate` varchar(20) NOT NULL,
+	`whatsappNumber` varchar(20) NOT NULL,
+	`gender` enum('Laki-laki','Perempuan') NOT NULL,
+	`profession` varchar(255) NOT NULL,
+	`province` varchar(100) NOT NULL,
+	`category` enum('Acting','Vocal','Model') NOT NULL,
+	`paymentStatus` enum('pending','paid','failed','pending_verification') NOT NULL DEFAULT 'pending',
+	`paymentProofUrl` text,
+	`saweriaLink` text,
+	`saweriaTransactionId` varchar(255),
+	`photoLink` text,
+	`nik` varchar(16),
+	`invoiceId` varchar(10),
+	`invoiceAmount` int,
+	`kiaNumber` varchar(16),
+	`parentalConsentUrl` text,
+	`isMinor` int NOT NULL DEFAULT 0,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `registrations_id` PRIMARY KEY(`id`),
+	CONSTRAINT `registrations_registrationNumber_unique` UNIQUE(`registrationNumber`)
+);
+--> statement-breakpoint
+CREATE TABLE `votes` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`receiptNumber` varchar(20),
+	`contestantId` int NOT NULL,
+	`voterName` varchar(255),
+	`voterEmail` varchar(320),
+	`amount` int NOT NULL,
+	`voteQuantity` int NOT NULL,
+	`saweriaTransactionId` varchar(255) NOT NULL,
+	`paymentStatus` enum('pending','paid','failed') NOT NULL DEFAULT 'pending',
+	`message` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `votes_id` PRIMARY KEY(`id`),
+	CONSTRAINT `votes_saweriaTransactionId_unique` UNIQUE(`saweriaTransactionId`)
+);

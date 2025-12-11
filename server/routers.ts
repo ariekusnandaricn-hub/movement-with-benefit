@@ -1,0 +1,120 @@
+import { COOKIE_NAME } from "@shared/const";
+import { getSessionCookieOptions } from "./_core/cookies";
+import { systemRouter } from "./_core/systemRouter";
+import { publicProcedure, router } from "./_core/trpc";
+import { z } from "zod";
+import { registrations } from "../drizzle/schema";
+import { getDb } from "./db";
+import { storagePut } from "./storage";
+import { like, eq } from "drizzle-orm";
+
+export const appRouter = router({
+    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
+  system: systemRouter,
+  auth: router({
+    me: publicProcedure.query(opts => opts.ctx.user),
+    logout: publicProcedure.mutation(({ ctx }) => {
+      const cookieOptions = getSessionCookieOptions(ctx.req);
+      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      return {
+        success: true,
+      } as const;
+    }),
+  }),
+
+  registration: router({
+    list: publicProcedure
+      .input(z.object({
+        search: z.string().optional(),
+        category: z.enum(["Acting", "Vocal", "Model"]).optional(),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        let whereConditions = [];
+        
+        if (input.search) {
+          whereConditions.push(
+            like(registrations.fullName, `%${input.search}%`)
+          );
+        }
+        
+        if (input.category) {
+          whereConditions.push(eq(registrations.category, input.category));
+        }
+
+        if (whereConditions.length === 0) {
+          return await db.select().from(registrations);
+        }
+
+        if (whereConditions.length === 1) {
+          return await db.select().from(registrations).where(whereConditions[0]);
+        }
+
+        // For multiple conditions, use AND
+        return await db.select().from(registrations).where(
+          whereConditions.reduce((acc, cond) => acc && cond)
+        );
+      }),
+    create: publicProcedure
+      .input(z.object({
+        fullName: z.string(),
+        email: z.string().email(),
+        address: z.string(),
+        birthPlace: z.string(),
+        birthDate: z.string(),
+        whatsappNumber: z.string(),
+        gender: z.enum(["Laki-laki", "Perempuan"]),
+        profession: z.string(),
+        province: z.string(),
+        category: z.enum(["Acting", "Vocal", "Model"]),
+        photoBase64: z.string(),
+        photoMimeType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const registrationNumber = `MWB-${Date.now()}`;
+
+        let photoLink = null;
+        try {
+          const parts = input.photoBase64.split(",");
+          const buffer = Buffer.from(parts[1], "base64");
+          const result = await storagePut(
+            `registrations/${registrationNumber}-photo.jpg`,
+            buffer,
+            input.photoMimeType
+          );
+          photoLink = result.url;
+        } catch (error) {
+          console.error("Failed to upload photo:", error);
+        }
+
+        await db.insert(registrations).values({
+          registrationNumber,
+          fullName: input.fullName,
+          email: input.email,
+          address: input.address,
+          birthPlace: input.birthPlace,
+          birthDate: input.birthDate,
+          whatsappNumber: input.whatsappNumber,
+          gender: input.gender,
+          profession: input.profession,
+          province: input.province,
+          category: input.category,
+          photoLink,
+          paymentStatus: "pending",
+        });
+
+        return {
+          success: true,
+          registrationNumber,
+          message: "Pendaftaran berhasil dibuat!"
+        };
+      }),
+  }),
+});
+
+export type AppRouter = typeof appRouter;

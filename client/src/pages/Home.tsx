@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, MessageCircle, Mail } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { useLocation } from "wouter";
 
 /**
  * Design Philosophy: Match exact reference design
@@ -13,6 +15,11 @@ import { Menu, X, MessageCircle, Mail } from "lucide-react";
 type Section = "hero" | "about" | "guest" | "judges" | "timeline" | "peserta" | "voter";
 
 export default function Home() {
+  // The userAuth hooks provides authentication state
+  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
+  const { user, loading, error, isAuthenticated, logout } = useAuth();
+  const [, setLocation] = useLocation();
+
   const [activeSection, setActiveSection] = useState<Section>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -64,7 +71,7 @@ export default function Home() {
           >
             🗳️ Vote Sekarang
           </Button>
-          <Button className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-sm hover:shadow-lg hover:shadow-pink-500/50">
+          <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-sm hover:shadow-lg hover:shadow-pink-500/50">
             ▶ Daftar Sekarang
           </Button>
         </div>
@@ -95,7 +102,7 @@ export default function Home() {
               <Button variant="outline" className="flex-1 border-cyan-400 text-cyan-400 text-xs">
                 Vote
               </Button>
-              <Button className="flex-1 bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-bold text-xs">
+              <Button onClick={() => setLocation("/register")} className="flex-1 bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-bold text-xs">
                 Daftar
               </Button>
             </div>
