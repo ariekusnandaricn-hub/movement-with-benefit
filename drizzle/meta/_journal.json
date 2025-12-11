@@ -15,6 +15,20 @@
       "when": 1765456972558,
       "tag": "0001_pale_alex_power",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1765461402164,
+      "tag": "0002_even_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1765461482714,
+      "tag": "0003_natural_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

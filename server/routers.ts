@@ -8,6 +8,8 @@ import { getDb } from "./db";
 import { storagePut } from "./storage";
 import { like, eq, and } from "drizzle-orm";
 import { generateInvoiceId, generatePaymentAmount, getCategoryCode } from "./utils/provinceCodeMapping";
+import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
+import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -189,6 +191,63 @@ export const appRouter = router({
         return {
           success: true,
           message: "Bukti pembayaran berhasil diupload!"
+        };
+      }),
+    verifyPayment: publicProcedure
+      .input(z.object({
+        registrationNumber: z.string(),
+        isApproved: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const registration = await db
+          .select()
+          .from(registrations)
+          .where(eq(registrations.registrationNumber, input.registrationNumber))
+          .limit(1);
+
+        if (!registration || registration.length === 0) {
+          throw new Error("Registrasi tidak ditemukan");
+        }
+
+        const reg = registration[0];
+        const newStatus = input.isApproved ? "verified" : "rejected";
+
+        await db.update(registrations)
+          .set({
+            paymentStatus: newStatus,
+          })
+          .where(eq(registrations.registrationNumber, input.registrationNumber));
+
+        if (input.isApproved) {
+          try {
+            await sendPaymentVerificationEmail(
+              reg.email,
+              reg.fullName,
+              reg.category,
+              reg.invoiceId || "",
+              reg.registrationNumber
+            );
+
+            await sendPaymentVerificationWhatsApp(
+              reg.whatsappNumber,
+              reg.fullName,
+              reg.category,
+              reg.invoiceId || "",
+              reg.registrationNumber
+            );
+          } catch (error) {
+            console.error("Error sending notifications:", error);
+          }
+        }
+
+        return {
+          success: true,
+          message: input.isApproved
+            ? "Pembayaran diverifikasi dan notifikasi telah dikirim!"
+            : "Pembayaran ditolak",
         };
       }),
   }),

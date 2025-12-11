@@ -1,0 +1,1 @@
+ALTER TABLE `registrations` MODIFY COLUMN `invoiceId` varchar(20);

@@ -89,14 +89,15 @@ export function generateInvoiceId(
  * Example: MWB-V.250.0111 -> 250010111
  */
 export function generatePaymentAmount(invoiceId: string): number {
-  // Extract the numeric part: 250.0111 -> 250010111
-  const parts = invoiceId.split(".");
-  if (parts.length !== 3) {
+  // Format: MWB-V.250.0111
+  // Extract using regex: MWB-[CATEGORY].[BASE].[SEQUENCE+PROVINCE]
+  const match = invoiceId.match(/MWB-[A-Z]\.(250)\.(\d{4})/);
+  if (!match) {
     throw new Error("Invalid invoice ID format");
   }
 
-  const baseAmount = parts[1]; // "250"
-  const sequenceAndProvince = parts[2]; // "0111"
+  const baseAmount = match[1]; // "250"
+  const sequenceAndProvince = match[2]; // "0111"
 
   // Combine: 250 + 01 + 11 = 250010111
   const sequenceNumber = sequenceAndProvince.substring(0, 2); // "01"

@@ -1,0 +1,57 @@
+    verifyPayment: publicProcedure
+      .input(z.object({
+        registrationNumber: z.string(),
+        isApproved: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const registration = await db
+          .select()
+          .from(registrations)
+          .where(eq(registrations.registrationNumber, input.registrationNumber))
+          .limit(1);
+
+        if (!registration || registration.length === 0) {
+          throw new Error("Registrasi tidak ditemukan");
+        }
+
+        const reg = registration[0];
+        const newStatus = input.isApproved ? "verified" : "rejected";
+
+        await db.update(registrations)
+          .set({
+            paymentStatus: newStatus,
+          })
+          .where(eq(registrations.registrationNumber, input.registrationNumber));
+
+        if (input.isApproved) {
+          try {
+            await sendPaymentVerificationEmail(
+              reg.email,
+              reg.fullName,
+              reg.category,
+              reg.invoiceId || "",
+              reg.registrationNumber
+            );
+
+            await sendPaymentVerificationWhatsApp(
+              reg.whatsappNumber,
+              reg.fullName,
+              reg.category,
+              reg.invoiceId || "",
+              reg.registrationNumber
+            );
+          } catch (error) {
+            console.error("Error sending notifications:", error);
+          }
+        }
+
+        return {
+          success: true,
+          message: input.isApproved
+            ? "Pembayaran diverifikasi dan notifikasi telah dikirim!"
+            : "Pembayaran ditolak",
+        };
+      }),

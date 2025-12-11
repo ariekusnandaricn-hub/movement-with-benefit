@@ -1,0 +1,1 @@
+ALTER TABLE `registrations` MODIFY COLUMN `paymentStatus` enum('pending','paid','failed','pending_verification','verified','rejected') NOT NULL DEFAULT 'pending';
