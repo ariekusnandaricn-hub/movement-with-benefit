@@ -10,10 +10,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle2, XCircle, Clock, Search, Filter } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Search, Filter, Download } from "lucide-react";
 import { toast } from "sonner";
+import { exportToCSV, exportToExcel, exportSummaryToExcel, getFormattedDate } from "@/lib/exportUtils";
 
 type PaymentStatus = "pending_verification" | "verified" | "rejected";
+
+interface PaymentRecord {
+  registrationNumber: string;
+  fullName: string;
+  email: string;
+  whatsappNumber: string;
+  category: string;
+  province: string;
+  invoiceId: string;
+  invoiceAmount: number;
+  paymentStatus: string;
+  createdAt?: string;
+}
 
 export default function AdminPaymentVerification() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,6 +155,76 @@ export default function AdminPaymentVerification() {
               <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Export Buttons */}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                const data = filteredRegistrations.map(reg => ({
+                  registrationNumber: reg.registrationNumber,
+                  fullName: reg.fullName,
+                  email: reg.email,
+                  whatsappNumber: reg.whatsappNumber,
+                  category: reg.category,
+                  province: reg.province,
+                  invoiceId: reg.invoiceId || '',
+                  invoiceAmount: reg.invoiceAmount || 0,
+                  paymentStatus: reg.paymentStatus,
+                  createdAt: reg.createdAt ? new Date(reg.createdAt).toISOString() : undefined,
+                })) as PaymentRecord[];
+                exportToCSV(data, `payment-report-${getFormattedDate()}.csv`);
+                toast.success('Data berhasil diexport ke CSV');
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Download size={16} className="mr-2" />
+              CSV
+            </Button>
+            <Button
+              onClick={() => {
+                const data = filteredRegistrations.map(reg => ({
+                  registrationNumber: reg.registrationNumber,
+                  fullName: reg.fullName,
+                  email: reg.email,
+                  whatsappNumber: reg.whatsappNumber,
+                  category: reg.category,
+                  province: reg.province,
+                  invoiceId: reg.invoiceId || '',
+                  invoiceAmount: reg.invoiceAmount || 0,
+                  paymentStatus: reg.paymentStatus,
+                  createdAt: reg.createdAt ? new Date(reg.createdAt).toISOString() : undefined,
+                })) as PaymentRecord[];
+                exportToExcel(data, `payment-report-${getFormattedDate()}.xlsx`);
+                toast.success('Data berhasil diexport ke Excel');
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Download size={16} className="mr-2" />
+              Excel
+            </Button>
+            <Button
+              onClick={() => {
+                const data = filteredRegistrations.map(reg => ({
+                  registrationNumber: reg.registrationNumber,
+                  fullName: reg.fullName,
+                  email: reg.email,
+                  whatsappNumber: reg.whatsappNumber,
+                  category: reg.category,
+                  province: reg.province,
+                  invoiceId: reg.invoiceId || '',
+                  invoiceAmount: reg.invoiceAmount || 0,
+                  paymentStatus: reg.paymentStatus,
+                  createdAt: reg.createdAt ? new Date(reg.createdAt).toISOString() : undefined,
+                })) as PaymentRecord[];
+                exportSummaryToExcel(data, `payment-summary-${getFormattedDate()}.xlsx`);
+                toast.success('Ringkasan berhasil diexport');
+              }}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Download size={16} className="mr-2" />
+              Ringkasan
+            </Button>
+          </div>
         </div>
 
         {/* Main Content */}
