@@ -30,6 +30,7 @@ export const appRouter = router({
       .input(z.object({
         search: z.string().optional(),
         category: z.enum(["Acting", "Vocal", "Model"]).optional(),
+        status: z.enum(["pending_verification", "verified", "rejected"]).optional(),
       }))
       .query(async ({ input }) => {
         const db = await getDb();
@@ -45,6 +46,10 @@ export const appRouter = router({
         
         if (input.category) {
           whereConditions.push(eq(registrations.category, input.category));
+        }
+        
+        if (input.status) {
+          whereConditions.push(eq(registrations.paymentStatus, input.status));
         }
 
         if (whereConditions.length === 0) {
