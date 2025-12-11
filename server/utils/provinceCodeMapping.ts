@@ -106,6 +106,26 @@ export function generatePaymentAmount(invoiceId: string): number {
 }
 
 /**
+ * Generate participant number with format: MWB-[KATEGORI].[URUTAN]-[KODE_PROVINSI]
+ * Example: MWB-V.001-11 (Vocal, urutan 001, Jakarta)
+ */
+export function generateParticipantNumber(
+  category: string,
+  sequenceNumber: number,
+  province: string
+): string {
+  const categoryCode = getCategoryCode(category);
+  const provinceCode = getProvinceCode(province);
+
+  if (!categoryCode || !provinceCode) {
+    throw new Error(`Invalid category or province: ${category}, ${province}`);
+  }
+
+  const paddedSequence = String(sequenceNumber).padStart(3, "0");
+  return `MWB-${categoryCode}.${paddedSequence}-${provinceCode}`;
+}
+
+/**
  * Get all province names
  */
 export function getAllProvinces(): string[] {

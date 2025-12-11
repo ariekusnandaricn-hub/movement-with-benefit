@@ -28,6 +28,15 @@
 - [x] Integrated Manus built-in notification API for email
 - [x] Integrated Manus built-in notification API for WhatsApp
 - [x] Updated notification functions to use Manus API endpoints
+- [x] Updated participant number format: MWB-[CATEGORY].[SEQUENCE]-[PROVINCE_CODE]
+- [x] Added participantNumber column to database schema
+- [x] Updated registration router to generate participant numbers
+
+## Participant Number Format
+- [x] Format: MWB-[CATEGORY].[SEQUENCE]-[PROVINCE_CODE]
+- [x] Example: MWB-V.001-11 (Vocal, sequence 001, Jakarta province code 11)
+- [x] Category codes: A (Acting), V (Vocal), M (Model)
+- [x] Province codes: 01-38 (all Indonesian provinces)
 
 ## Future Enhancements
 - [ ] Contestant gallery with voting system

@@ -1,0 +1,1 @@
+ALTER TABLE `registrations` ADD `participantNumber` varchar(20);

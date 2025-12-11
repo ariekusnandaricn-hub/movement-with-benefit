@@ -7,7 +7,7 @@ import { registrations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
 import { like, eq, and } from "drizzle-orm";
-import { generateInvoiceId, generatePaymentAmount, getCategoryCode } from "./utils/provinceCodeMapping";
+import { generateInvoiceId, generatePaymentAmount, getCategoryCode, generateParticipantNumber } from "./utils/provinceCodeMapping";
 import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
 
@@ -139,6 +139,7 @@ export const appRouter = router({
           parentalConsentUrl: parentalConsentLink,
           isMinor: input.isMinor || 0,
           paymentStatus: "pending",
+          participantNumber: "", // Will be updated after counting
         });
 
         // Generate invoice ID: MWB-[KATEGORI].[URUTAN].[KODE_PROVINSI]
@@ -151,10 +152,21 @@ export const appRouter = router({
         const sequentialNumber = categoryRegistrations.length + 1;
         const invoiceId = generateInvoiceId(input.category, sequentialNumber, input.province);
         const paymentAmount = generatePaymentAmount(invoiceId);
+        const participantNumber = generateParticipantNumber(input.category, sequentialNumber, input.province);
+
+        // Update registration with participant number and invoice details
+        await db.update(registrations)
+          .set({
+            participantNumber,
+            invoiceId,
+            invoiceAmount: paymentAmount,
+          })
+          .where(eq(registrations.registrationNumber, registrationNumber));
 
         return {
           success: true,
           registrationNumber,
+          participantNumber,
           invoiceId,
           paymentAmount,
           message: "Pendaftaran berhasil dibuat!"
@@ -233,7 +245,7 @@ export const appRouter = router({
               reg.fullName,
               reg.category,
               reg.invoiceId || "",
-              reg.registrationNumber,
+              reg.participantNumber || reg.registrationNumber,
               reg.invoiceAmount || undefined
             );
 
@@ -242,7 +254,7 @@ export const appRouter = router({
               reg.fullName,
               reg.category,
               reg.invoiceId || "",
-              reg.registrationNumber,
+              reg.participantNumber || reg.registrationNumber,
               reg.invoiceAmount || undefined
             );
           } catch (error) {

@@ -31,6 +31,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const registrations = mysqlTable("registrations", {
   id: int("id").autoincrement().primaryKey(),
   registrationNumber: varchar("registrationNumber", { length: 50 }).notNull().unique(),
+  // participantNumber format: MWB-[CATEGORY].[SEQUENCE]-[PROVINCE_CODE] (e.g., MWB-V.001-11)
   fullName: varchar("fullName", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   address: text("address").notNull(),
@@ -49,6 +50,7 @@ export const registrations = mysqlTable("registrations", {
   nik: varchar("nik", { length: 16 }),
   invoiceId: varchar("invoiceId", { length: 20 }),
   invoiceAmount: int("invoiceAmount"),
+  participantNumber: varchar("participantNumber", { length: 20 }),
   kiaNumber: varchar("kiaNumber", { length: 16 }),
   parentalConsentUrl: text("parentalConsentUrl"),
   isMinor: int("isMinor").default(0).notNull(),
