@@ -96,14 +96,13 @@ export function generatePaymentAmount(invoiceId: string): number {
     throw new Error("Invalid invoice ID format");
   }
 
-  const baseAmount = match[1]; // "250"
-  const sequenceAndProvince = match[2]; // "0111"
+  const baseAmount = parseInt(match[1], 10); // 250
+  const sequenceAndProvince = parseInt(match[2], 10); // '0111' -> 111
 
-  // Combine: 250 + 01 + 11 = 250010111
-  const sequenceNumber = sequenceAndProvince.substring(0, 2); // "01"
-  const provinceCode = sequenceAndProvince.substring(2); // "11"
+  // Formula: base * 1000000 + (sequenceAndProvince + 10000)
+  // Example: 250 * 1000000 + (111 + 10000) = 250010111
+  return baseAmount * 1000000 + (sequenceAndProvince + 10000);
 
-  return parseInt(`${baseAmount}${sequenceNumber}${provinceCode}`, 10);
 }
 
 /**

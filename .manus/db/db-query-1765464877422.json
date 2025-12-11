@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM registrations WHERE email = 'ariekusnandar.icn@gmail.com' OR email = 'young@example.com' OR email LIKE 'test%@example.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3AXeqsdQcNQXbRB.a74bad8313a3 --database EUcgYjJW3SJffyj6kwpu9p --execute DELETE FROM registrations WHERE email = 'ariekusnandar.icn@gmail.com' OR email = 'young@example.com' OR email LIKE 'test%@example.com';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1626
+}

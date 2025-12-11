@@ -92,16 +92,16 @@ describe("Payment Verification & Notification System", () => {
     expect(updated[0].paymentStatus).toBe("rejected");
   });
 
-  it("should format WhatsApp number correctly", () => {
-    const { formatWhatsAppNumber } = require("../utils/whatsappNotification");
+  it("should format WhatsApp number correctly", async () => {
+    const { formatWhatsAppNumber } = await import("../utils/whatsappNotification");
 
     expect(formatWhatsAppNumber("082315660007")).toBe("6282315660007");
     expect(formatWhatsAppNumber("6282315660007")).toBe("6282315660007");
     expect(formatWhatsAppNumber("82315660007")).toBe("6282315660007");
   });
 
-  it("should generate payment verification message", () => {
-    const { generatePaymentVerificationMessage } = require("../utils/whatsappNotification");
+  it("should generate payment verification message", async () => {
+    const { generatePaymentVerificationMessage } = await import("../utils/whatsappNotification");
 
     const message = generatePaymentVerificationMessage(
       "Test User",
@@ -116,8 +116,8 @@ describe("Payment Verification & Notification System", () => {
     expect(message).toContain("TEST-NOTIF-001");
   });
 
-  it("should generate payment reminder message", () => {
-    const { generatePaymentReminderMessage } = require("../utils/whatsappNotification");
+  it("should generate payment reminder message", async () => {
+    const { generatePaymentReminderMessage } = await import("../utils/whatsappNotification");
 
     const message = generatePaymentReminderMessage(
       "Test User",
