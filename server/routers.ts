@@ -163,6 +163,29 @@ export const appRouter = router({
           })
           .where(eq(registrations.registrationNumber, registrationNumber));
 
+        // Send automatic notifications for testing
+        try {
+          await sendPaymentVerificationEmail(
+            input.email,
+            input.fullName,
+            input.category,
+            participantNumber,
+            invoiceId,
+            paymentAmount
+          );
+          
+          await sendPaymentVerificationWhatsApp(
+            input.whatsappNumber,
+            input.fullName,
+            input.category,
+            participantNumber,
+            invoiceId,
+            paymentAmount
+          );
+        } catch (error) {
+          console.error("Failed to send notifications:", error);
+        }
+
         return {
           success: true,
           registrationNumber,
