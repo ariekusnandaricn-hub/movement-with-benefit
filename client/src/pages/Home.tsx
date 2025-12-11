@@ -160,7 +160,7 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mt-12">
-              <Button className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg px-8 py-6 hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300">
+              <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg px-8 py-6 hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300">
                 ▶ Daftar Sekarang
               </Button>
               <Button
@@ -408,7 +408,7 @@ export default function Home() {
               ))}
             </div>
             <div className="text-center pt-8">
-              <Button className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg px-8 py-6">
+              <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg px-8 py-6">
                 ▶ Daftar Sekarang
               </Button>
             </div>
