@@ -145,7 +145,7 @@ export default function PaymentInfo() {
 
             {/* Informasi Pembayaran */}
             <div className="p-4 bg-pink-500/10 border border-pink-500/30 rounded-lg">
-              <h3 className="text-lg font-semibold text-pink-400 mb-4">Transfer Rp 250.000 ke rekening:</h3>
+              <h3 className="text-lg font-semibold text-pink-400 mb-4">Transfer {formatPaymentAmount(paymentAmount)} ke rekening:</h3>
               
               <div className="space-y-3">
                 <div>

@@ -51,6 +51,13 @@
 - [x] Fixed cropped map background on mobile devices
 - [x] Adjusted map background to show complete Indonesia archipelago (object-contain)
 
+## Payment Upload Fix
+- [x] Fixed hardcoded payment amount in PaymentInfo page
+- [x] Improved uploadPaymentProof error handling
+- [x] Added better base64 data validation
+- [x] Added file size and validity checks
+- [x] Improved error messages for debugging
+
 ## Future Enhancements
 - [ ] Contestant gallery with voting system
 - [ ] Automated payment reminders (24-hour deadline)

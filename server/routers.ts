@@ -184,8 +184,22 @@ export const appRouter = router({
 
         let paymentProofLink = null;
         try {
-          const parts = input.paymentProofBase64.split(",");
-          const buffer = Buffer.from(parts[1], "base64");
+          // Extract base64 data more safely
+          let base64Data = input.paymentProofBase64;
+          if (base64Data.includes(",")) {
+            base64Data = base64Data.split(",")[1];
+          }
+          
+          if (!base64Data) {
+            throw new Error("Data bukti pembayaran tidak valid");
+          }
+          
+          const buffer = Buffer.from(base64Data, "base64");
+          
+          if (buffer.length === 0) {
+            throw new Error("File bukti pembayaran kosong");
+          }
+          
           const result = await storagePut(
             `payments/${input.registrationNumber}-proof.jpg`,
             buffer,
@@ -194,7 +208,8 @@ export const appRouter = router({
           paymentProofLink = result.url;
         } catch (error) {
           console.error("Failed to upload payment proof:", error);
-          throw new Error("Gagal mengupload bukti pembayaran");
+          const errorMsg = error instanceof Error ? error.message : "Unknown error";
+          throw new Error(`Gagal mengupload bukti pembayaran: ${errorMsg}`);
         }
 
         // Update payment status
