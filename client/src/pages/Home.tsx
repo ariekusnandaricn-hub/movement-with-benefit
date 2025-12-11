@@ -342,15 +342,83 @@ export default function Home() {
               </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {["Acting", "Vocal", "Model"].map((category) => (
-                <div key={category} className="text-center space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-mono font-bold text-cyan-400">Mentor</h3>
-                    <p className="text-slate-300">{category}</p>
-                    <p className="text-slate-400 text-sm">Coming Soon</p>
+              {/* Mentor Acting */}
+              <div className="text-center space-y-6">
+                <div className="space-y-4">
+                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                    <img
+                      src="/images/mentor-mario-conk.jpg"
+                      alt="Mario Conk"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Mario Conk</h3>
+                    <p className="text-slate-300 font-semibold">Mentor Acting</p>
+                    <p className="text-slate-400 text-sm mt-2">Aktor berpengalaman di industri entertainment Indonesia yang siap membimbing peserta kategori Acting dengan teknik akting profesional.</p>
+                    <a
+                      href="https://www.instagram.com/marioaconk"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                    >
+                      @marioaconk
+                    </a>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Mentor Vocal */}
+              <div className="text-center space-y-6">
+                <div className="space-y-4">
+                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                    <img
+                      src="/images/mentor-igo-pentury.jpg"
+                      alt="Igo Pentury"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Igo Pentury</h3>
+                    <p className="text-slate-300 font-semibold">Mentor Vokal</p>
+                    <p className="text-slate-400 text-sm mt-2">Penyanyi pemenang Indonesian Idol 2010 dengan pengalaman musik profesional. Siap membimbing peserta kategori Vokal dengan teknik vokal dan interpretasi lagu.</p>
+                    <a
+                      href="https://www.instagram.com/igopentury_real"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                    >
+                      @igopentury_real
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mentor Model */}
+              <div className="text-center space-y-6">
+                <div className="space-y-4">
+                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                    <img
+                      src="/images/mentor-velisya-sonya.jpg"
+                      alt="Velisya Sonya"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Velisya Sonya</h3>
+                    <p className="text-slate-300 font-semibold">Mentor Model</p>
+                    <p className="text-slate-400 text-sm mt-2">Model profesional dan multi-talented talent dengan pengalaman di ajang kecantikan internasional. Siap membimbing peserta kategori Model dengan postur, catwalk, dan presentation skills.</p>
+                    <a
+                      href="https://www.instagram.com/velisya.sonya"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                    >
+                      @velisya.sonya
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
