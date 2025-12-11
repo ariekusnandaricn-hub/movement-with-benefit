@@ -446,6 +446,15 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Floating DAFTAR Button */}
+      <button
+        onClick={() => setLocation("/register")}
+        className="fixed bottom-8 right-8 w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 text-white font-mono font-bold text-sm flex items-center justify-center hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300 hover:scale-110 z-40"
+        title="Daftar Sekarang"
+      >
+        DAFTAR
+      </button>
     </div>
   );
 }
