@@ -132,11 +132,34 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+    /* Mobile-first responsive typography */
+    font-size: clamp(14px, 2.5vw, 16px);
+  }
+  
+  /* Mobile-optimized spacing */
+  @media (max-width: 640px) {
+    body {
+      line-height: 1.5;
+    }
   }
   
   /* Typography System for Neo-Brutalism */
   h1, h2, h3, h4, h5, h6 {
     @apply font-mono font-black;
+  }
+  
+  /* Mobile-first heading sizes */
+  @media (max-width: 640px) {
+    h1 {
+      font-size: clamp(28px, 8vw, 48px);
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: clamp(24px, 6vw, 36px);
+    }
+    h3 {
+      font-size: clamp(20px, 5vw, 28px);
+    }
   }
   
   /* Custom animation delays */

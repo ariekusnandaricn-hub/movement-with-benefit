@@ -40,12 +40,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
       {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center bg-slate-900/60 backdrop-blur-sm border-b border-cyan-400/20">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center bg-slate-900/60 backdrop-blur-sm border-b border-cyan-400/20">
         <div className="flex items-center gap-2 sm:gap-3">
-          <img src="/images/logo.png" alt="MWB Logo" className="h-12 sm:h-14 w-auto" />
+          <img src="/images/logo.png" alt="MWB Logo" className="h-14 sm:h-16 md:h-14 w-auto" />
           <div className="hidden sm:block">
-            <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-none">MOVEMENT</p>
-            <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-none">WITH BENEFIT</p>
+            <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-tight">MOVEMENT</p>
+            <p className="text-cyan-400 font-mono font-bold text-xs sm:text-sm leading-tight">WITH BENEFIT</p>
           </div>
         </div>
 
@@ -125,13 +125,13 @@ export default function Home() {
           {/* Content */}
           <div className="relative z-10 container mx-auto px-6 py-20 flex flex-col items-center justify-center text-center">
             {/* Logo */}
-            <div className="mb-8 sm:mb-12">
-              <img src="/images/logo.png" alt="Movement with Benefit" className="h-24 sm:h-32 md:h-40 mx-auto" />
+            <div className="mb-6 sm:mb-10 md:mb-12">
+              <img src="/images/logo.png" alt="Movement with Benefit" className="h-32 sm:h-40 md:h-48 mx-auto" />
             </div>
 
             {/* Main Title */}
-            <div className="space-y-4 sm:space-y-6 max-w-4xl">
-              <h1 className="font-mono font-black text-3xl sm:text-5xl md:text-7xl leading-tight">
+            <div className="space-y-3 sm:space-y-5 max-w-4xl">
+              <h1 className="font-mono font-black text-4xl sm:text-6xl md:text-7xl leading-tight">
                 <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                   MOVEMENT WITH
                 </span>
@@ -141,9 +141,9 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-lg sm:text-2xl md:text-3xl text-white font-mono font-bold">AUDISI</p>
+              <p className="text-xl sm:text-3xl md:text-3xl text-white font-mono font-bold">AUDISI</p>
 
-              <p className="text-base sm:text-xl md:text-2xl text-slate-300 font-mono tracking-wider">
+              <p className="text-sm sm:text-lg md:text-2xl text-slate-300 font-mono tracking-wider">
                 ACTING | VOCAL | MODEL
               </p>
 
@@ -152,42 +152,42 @@ export default function Home() {
                 Movement with Benefit adalah sebuah audisi bakat nasional yang mencari talenta terbaik di bidang acting, vocal, dan modeling dari seluruh 38 provinsi di Indonesia.
               </p>
 
-              <p className="text-xs sm:text-sm md:text-base text-slate-400">
+              <p className="text-xs sm:text-sm md:text-base text-slate-400 px-2">
                 Diselenggarakan oleh <span className="text-cyan-400 font-bold">PT. Pandawa Kreasi Organizer</span> dengan tema{" "}
                 <span className="text-cyan-400 font-bold">"Discover Your Talent, Inspire the Nation"</span>
               </p>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-12">
-              <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-10 px-2">
+              <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300 w-full sm:w-auto">
                 ▶ Daftar Sekarang
               </Button>
               <Button
                 variant="outline"
-                className="border-2 border-cyan-400 text-cyan-400 font-mono font-bold text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 hover:bg-cyan-400/10 transition-all duration-300"
+                className="border-2 border-cyan-400 text-cyan-400 font-mono font-bold text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 hover:bg-cyan-400/10 transition-all duration-300 w-full sm:w-auto"
               >
                 🗳️ Vote Sekarang
               </Button>
             </div>
 
             {/* Contact Info */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-12 justify-center text-xs sm:text-sm">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-6 sm:mt-10 justify-center text-xs sm:text-sm px-2">
               <a
                 href="https://wa.me/082315660007"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="flex items-center justify-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
               >
-                <MessageCircle size={20} />
-                <span className="font-mono text-sm">📱 WhatsApp Info</span>
+                <MessageCircle size={18} />
+                <span className="font-mono text-xs sm:text-sm">📱 WhatsApp</span>
               </a>
               <a
                 href="mailto:movementwithbenefit@gmail.com"
-                className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="flex items-center justify-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
               >
-                <Mail size={20} />
-                <span className="font-mono text-sm">movementwithbenefit@gmail.com</span>
+                <Mail size={18} />
+                <span className="font-mono text-xs sm:text-sm">Email</span>
               </a>
             </div>
 
@@ -221,8 +221,8 @@ export default function Home() {
           </div>
 
           {/* Floating DAFTAR Button (Bottom Right) */}
-          <div className="absolute bottom-8 right-8 z-20">
-            <button className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-mono font-bold text-sm text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
+          <div className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-20">
+            <button className="w-24 h-24 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center font-mono font-bold text-xs sm:text-sm text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300">
               DAFTAR
             </button>
           </div>
