@@ -257,6 +257,15 @@ export default function Home() {
                 Pemenang akan mendapatkan kontrak dengan partner label rekaman dan production house profesional, membuka peluang karir yang luar biasa di industri entertainment.
               </p>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -290,6 +299,15 @@ export default function Home() {
                 <p className="text-slate-400 text-sm">Coming Soon</p>
               </div>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -320,6 +338,15 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
             </div>
           </div>
         </section>
@@ -420,6 +447,15 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -466,6 +502,15 @@ export default function Home() {
                 </p>
               </div>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -507,6 +552,15 @@ export default function Home() {
                 ▶ Daftar Sekarang
               </Button>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
           </div>
         </section>
       )}
@@ -536,6 +590,15 @@ export default function Home() {
               </p>
               <Button className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-lg px-8 py-6">
                 🗳️ Vote Sekarang
+              </Button>
+            </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
               </Button>
             </div>
           </div>
