@@ -643,18 +643,17 @@ export default function Home() {
                 PARTNER
               </span>
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-2xl mx-auto">
               {[
-                { name: "PT. Pandawa Kreasi Organizer", icon: "🎬" },
-                { name: "Partner 2", icon: "🎵" },
-                { name: "Partner 3", icon: "📸" },
-                { name: "Partner 4", icon: "🎭" },
+                { name: "PT. Pandawa Kreasi Organizer", image: "/images/logo.png" },
+                { name: "By. Sha - Salon & Makeup Studio", image: "/images/partner-bysha.jpg" },
+                { name: "Satupintu 404 Management", image: "/images/partner-satupintu.jpg" },
               ].map((partner) => (
                 <div
                   key={partner.name}
                   className="p-6 border border-cyan-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
                 >
-                  <div className="text-4xl">{partner.icon}</div>
+                  <img src={partner.image} alt={partner.name} className="h-24 w-auto mx-auto object-contain" />
                   <p className="text-sm text-slate-300 font-mono">{partner.name}</p>
                 </div>
               ))}
