@@ -190,7 +190,7 @@ export default function Home() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-10 px-2">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-12 justify-center px-2">
               <Button onClick={() => setLocation("/register")} className="bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-mono font-bold text-base sm:text-lg px-8 sm:px-10 py-5 sm:py-6 hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300 w-full sm:w-auto">
                 ▶ Daftar Sekarang
               </Button>
@@ -203,7 +203,7 @@ export default function Home() {
             </div>
 
             {/* Contact Info */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-6 sm:mt-10 justify-center text-xs sm:text-sm px-2">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 mt-8 sm:mt-12 justify-center text-xs sm:text-sm px-2">
               <a
                 href="https://wa.me/6282315660007"
                 target="_blank"
