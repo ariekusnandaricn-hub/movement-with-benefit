@@ -431,7 +431,7 @@ export default function Home() {
                     src="/images/mentor-mario-aconk.jpg"
                     alt="Mario Aconk"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    style={{ objectPosition: 'center 85%' }}
+                    style={{ objectPosition: 'center center' }}
                   />
                 </div>
                 <div>
