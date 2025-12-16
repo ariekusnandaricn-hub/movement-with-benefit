@@ -428,9 +428,9 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
                   <img
-                    src="/images/mentor-mario-conk.jpg"
+                    src="/images/mentor-mario-aconk.jpg"
                     alt="Mario Aconk"
-                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div>
