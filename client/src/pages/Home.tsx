@@ -643,10 +643,11 @@ export default function Home() {
                 PARTNER
               </span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center justify-center max-w-4xl mx-auto">
               {[
                 { name: "By. Sha - Salon & Makeup Studio", image: "/images/partner-bysha.jpg" },
-                { name: "Satupintu 404 Management", image: "/images/partner-satupintu.jpg" },
+                { name: "Satupintu Management", image: "/images/partner-satupintu.jpg" },
+                { name: "Bahaya Records", image: "/images/partner-bahaya.png" },
               ].map((partner) => (
                 <div
                   key={partner.name}
