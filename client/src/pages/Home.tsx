@@ -687,41 +687,18 @@ export default function Home() {
                 SPONSOR
               </span>
             </h2>
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-2xl font-mono font-bold text-purple-400 mb-8 text-center">💎 Platinum Sponsor</h3>
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-6 items-center justify-center max-w-2xl mx-auto">
-                  {[
-                    { name: "Bank Jakarta", image: "/images/sponsor-bankjakarta.png" },
-                  ].map((sponsor) => (
-                    <div
-                      key={sponsor.name}
-                      className="p-6 border border-purple-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
-                    >
-                      <img src={sponsor.image} alt={sponsor.name} className="h-20 w-auto mx-auto object-contain" />
-                      <p className="text-sm text-slate-300 font-mono">{sponsor.name}</p>
-                    </div>
-                  ))}
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 items-center justify-center max-w-2xl mx-auto">
+              {[
+                { name: "Bank Jakarta", image: "/images/sponsor-bankjakarta.png" },
+              ].map((sponsor) => (
+                <div
+                  key={sponsor.name}
+                  className="p-6 border border-purple-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                >
+                  <img src={sponsor.image} alt={sponsor.name} className="h-20 w-auto mx-auto object-contain" />
+                  <p className="text-sm text-slate-300 font-mono">{sponsor.name}</p>
                 </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-mono font-bold text-purple-300 mb-8 text-center">🥈 Gold Sponsor</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 items-center justify-center">
-                  {[
-                    { name: "Gold Sponsor 1", icon: "⭐" },
-                    { name: "Gold Sponsor 2", icon: "🎯" },
-                    { name: "Gold Sponsor 3", icon: "🏆" },
-                  ].map((sponsor) => (
-                    <div
-                      key={sponsor.name}
-                      className="p-6 border border-purple-300/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
-                    >
-                      <div className="text-4xl">{sponsor.icon}</div>
-                      <p className="text-sm text-slate-300 font-mono">{sponsor.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
             <div className="flex justify-center mt-12">
               <Button
