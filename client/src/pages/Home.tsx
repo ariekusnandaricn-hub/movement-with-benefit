@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, MessageCircle, Mail } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Design Philosophy: Match exact reference design
@@ -22,6 +22,19 @@ export default function Home() {
 
   const [activeSection, setActiveSection] = useState<Section>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
+
+  // Animate counter every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
+    }, 15000);
+    
+    // Set initial value
+    setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const menuItems = [
     { id: "about", label: "About" },
@@ -161,7 +174,7 @@ export default function Home() {
                   <div className="text-2xl">👥</div>
                   <div className="text-left">
                     <p className="text-xs sm:text-sm text-slate-300 font-mono">Peserta Terdaftar</p>
-                    <p className="text-2xl sm:text-3xl font-mono font-black bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">2,847</p>
+                    <p className="text-2xl sm:text-3xl font-mono font-black bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent transition-all duration-500">{participantCount.toLocaleString('id-ID')}</p>
                   </div>
                 </div>
               </div>
