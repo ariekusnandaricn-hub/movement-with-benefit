@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
  * - All sections accessible via top menu
  */
 
-type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter";
+type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter" | "partner";
 
 export default function Home() {
   // The userAuth hooks provides authentication state
@@ -31,6 +31,7 @@ export default function Home() {
     { id: "timeline", label: "Timeline" },
     { id: "peserta", label: "Peserta" },
     { id: "voter", label: "Voter" },
+    { id: "partner", label: "Partner & Sponsor" },
   ];
 
   const handleMenuClick = (section: Section) => {
@@ -607,6 +608,103 @@ export default function Home() {
                 🗳️ Vote Sekarang
               </Button>
             </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Partner & Sponsorship Section */}
+      {activeSection === "partner" && (
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="/images/map-indonesia.png"
+              alt="Indonesia Map"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative z-10 container mx-auto px-6 space-y-16">
+            <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
+              <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
+                PARTNER & SPONSOR
+              </span>
+            </h2>
+
+            {/* Official Partner */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-mono font-bold text-cyan-400 mb-8 text-center">🤝 Official Partner</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+                  {[
+                    { name: "PT. Pandawa Kreasi Organizer", icon: "🎬" },
+                    { name: "Partner 2", icon: "🎵" },
+                    { name: "Partner 3", icon: "📸" },
+                    { name: "Partner 4", icon: "🎭" },
+                  ].map((partner) => (
+                    <div
+                      key={partner.name}
+                      className="p-6 border border-cyan-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                    >
+                      <div className="text-4xl">{partner.icon}</div>
+                      <p className="text-sm text-slate-300 font-mono">{partner.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Media Support */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-mono font-bold text-pink-500 mb-8 text-center">📺 Media Support</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+                  {[
+                    { name: "TikTok", icon: "🎬" },
+                    { name: "Instagram", icon: "📱" },
+                    { name: "YouTube", icon: "▶️" },
+                    { name: "Media Partner", icon: "📡" },
+                  ].map((media) => (
+                    <div
+                      key={media.name}
+                      className="p-6 border border-pink-500/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                    >
+                      <div className="text-4xl">{media.icon}</div>
+                      <p className="text-sm text-slate-300 font-mono">{media.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sponsors */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-mono font-bold text-purple-400 mb-8 text-center">💎 Platinum Sponsor</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center justify-center">
+                  {[
+                    { name: "Sponsor Platinum 1", icon: "👑" },
+                    { name: "Sponsor Platinum 2", icon: "💰" },
+                  ].map((sponsor) => (
+                    <div
+                      key={sponsor.name}
+                      className="p-6 border border-purple-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                    >
+                      <div className="text-4xl">{sponsor.icon}</div>
+                      <p className="text-sm text-slate-300 font-mono">{sponsor.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-center mt-12">
               <Button
                 onClick={() => handleMenuClick("hero")}
