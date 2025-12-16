@@ -28,15 +28,18 @@ export default function Home() {
   useEffect(() => {
     // Start with 0
     setParticipantCount(0);
+    let currentCount = 0;
     
     // Set first update after 15 seconds
     const firstTimeout = setTimeout(() => {
-      setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
+      currentCount += 20;
+      setParticipantCount(currentCount);
     }, 15000);
     
     // Then update every 15 seconds
     const interval = setInterval(() => {
-      setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
+      currentCount += 20;
+      setParticipantCount(currentCount);
     }, 15000);
     
     return () => {
