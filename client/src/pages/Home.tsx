@@ -161,10 +161,13 @@ export default function Home() {
                   WITH BENEFIT
                 </span>
               </h1>
+              <p className="text-lg sm:text-xl md:text-2xl font-mono text-cyan-400 pt-2">
+                "Discover Your Talent, Inspire the Nation"
+              </p>
             </div>
 
             {/* Subtitle */}
-            <div className="space-y-2 pt-4">
+            <div className="space-y-2 pt-6">
               <p className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-white">AUDISI</p>
               <p className="text-lg sm:text-xl md:text-2xl font-mono text-slate-300">ACTING | VOCAL | MODEL</p>
             </div>
@@ -175,8 +178,7 @@ export default function Home() {
             </p>
 
             <p className="text-xs sm:text-sm md:text-base text-slate-400 px-2">
-              Diselenggarakan oleh <span className="text-cyan-400 font-bold">PT. Pandawa Kreasi Organizer</span> dengan tema{" "}
-              <span className="text-cyan-400 font-bold">"Discover Your Talent, Inspire the Nation"</span>
+              Diselenggarakan oleh <span className="text-cyan-400 font-bold">PT. Pandawa Kreasi Organizer</span>
             </p>
 
             {/* Participant Counter */}
