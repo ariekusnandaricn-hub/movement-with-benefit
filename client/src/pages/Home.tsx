@@ -430,7 +430,7 @@ export default function Home() {
                   <img
                     src="/images/mentor-mario-conk.jpg"
                     alt="Mario Aconk"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div>
