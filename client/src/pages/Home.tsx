@@ -645,7 +645,6 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-2xl mx-auto">
               {[
-                { name: "PT. Pandawa Kreasi Organizer", image: "/images/logo.png" },
                 { name: "By. Sha - Salon & Makeup Studio", image: "/images/partner-bysha.jpg" },
                 { name: "Satupintu 404 Management", image: "/images/partner-satupintu.jpg" },
               ].map((partner) => (
