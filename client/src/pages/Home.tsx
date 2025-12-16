@@ -24,16 +24,25 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
 
-  // Animate counter every 15 seconds
+  // Animate counter every 15 seconds starting from 0
   useEffect(() => {
+    // Start with 0
+    setParticipantCount(0);
+    
+    // Set first update after 15 seconds
+    const firstTimeout = setTimeout(() => {
+      setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
+    }, 15000);
+    
+    // Then update every 15 seconds
     const interval = setInterval(() => {
       setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
     }, 15000);
     
-    // Set initial value
-    setParticipantCount(Math.floor(Math.random() * (3500 - 2500 + 1)) + 2500);
-    
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(firstTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   const menuItems = [
