@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, MessageCircle, Mail } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import { useState } from "react";
 
 /**
  * Design Philosophy: Match exact reference design
@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
  * - All sections accessible via top menu
  */
 
-type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter" | "partner";
+type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter" | "partner" | "sponsor" | "support";
 
 export default function Home() {
   // The userAuth hooks provides authentication state
@@ -31,7 +31,9 @@ export default function Home() {
     { id: "timeline", label: "Timeline" },
     { id: "peserta", label: "Peserta" },
     { id: "voter", label: "Voter" },
-    { id: "partner", label: "Partner & Sponsor" },
+    { id: "partner", label: "Partner" },
+    { id: "sponsor", label: "Sponsor" },
+    { id: "support", label: "Support" },
   ];
 
   const handleMenuClick = (section: Section) => {
@@ -100,65 +102,56 @@ export default function Home() {
                 {item.label}
               </button>
             ))}
-            <div className="flex gap-2 mt-4">
-              <Button variant="outline" className="flex-1 border-cyan-400 text-cyan-400 text-xs">
-                Vote
-              </Button>
-              <Button onClick={() => setLocation("/register")} className="flex-1 bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 font-bold text-xs">
-                Daftar
-              </Button>
-            </div>
           </div>
         </div>
       )}
 
       {/* Hero Section */}
       {activeSection === "hero" && (
-        <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-          {/* Background Map */}
-          <div className="absolute inset-0 opacity-30 sm:opacity-40 flex items-center justify-center">
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+          <div className="absolute inset-0 opacity-20">
             <img
               src="/images/map-indonesia.png"
               alt="Indonesia Map"
-              className="w-full h-full object-contain object-center"
+              className="w-full h-full object-cover"
             />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 container mx-auto px-6 py-20 pb-32 sm:pb-20 flex flex-col items-center justify-center text-center">
+          <div className="relative z-10 text-center space-y-6 px-4 sm:px-6">
             {/* Logo */}
-            <div className="mb-6 sm:mb-10 md:mb-12">
-              <img src="/images/logo.png" alt="Movement with Benefit" className="h-32 sm:h-40 md:h-48 mx-auto" />
+            <div className="flex justify-center mb-4">
+              <img src="/images/logo.png" alt="MWB Logo" className="h-24 sm:h-32 w-auto" />
             </div>
 
             {/* Main Title */}
-            <div className="space-y-3 sm:space-y-5 max-w-4xl">
-              <h1 className="font-mono font-black text-4xl sm:text-6xl md:text-7xl leading-tight">
-                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-                  MOVEMENT WITH
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
-                  BENEFIT
+            <div className="space-y-2">
+              <h1 className="font-mono font-black text-4xl sm:text-5xl md:text-7xl leading-tight">
+                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                  MOVEMENT
                 </span>
               </h1>
-
-              <p className="text-xl sm:text-3xl md:text-3xl text-white font-mono font-bold">AUDISI</p>
-
-              <p className="text-sm sm:text-lg md:text-2xl text-slate-300 font-mono tracking-wider">
-                ACTING | VOCAL | MODEL
-              </p>
-
-              {/* Description */}
-              <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                Movement with Benefit adalah sebuah audisi bakat nasional yang mencari talenta terbaik di bidang acting, vocal, dan modeling dari seluruh 38 provinsi di Indonesia.
-              </p>
-
-              <p className="text-xs sm:text-sm md:text-base text-slate-400 px-2">
-                Diselenggarakan oleh <span className="text-cyan-400 font-bold">PT. Pandawa Kreasi Organizer</span> dengan tema{" "}
-                <span className="text-cyan-400 font-bold">"Discover Your Talent, Inspire the Nation"</span>
-              </p>
+              <h1 className="font-mono font-black text-4xl sm:text-5xl md:text-7xl leading-tight">
+                <span className="bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
+                  WITH BENEFIT
+                </span>
+              </h1>
             </div>
+
+            {/* Subtitle */}
+            <div className="space-y-2 pt-4">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-white">AUDISI</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-mono text-slate-300">ACTING | VOCAL | MODEL</p>
+            </div>
+
+            {/* Description */}
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
+              Movement with Benefit adalah sebuah audisi bakat nasional yang mencari talenta terbaik di bidang acting, vocal, dan modeling dari seluruh 38 provinsi di Indonesia.
+            </p>
+
+            <p className="text-xs sm:text-sm md:text-base text-slate-400 px-2">
+              Diselenggarakan oleh <span className="text-cyan-400 font-bold">PT. Pandawa Kreasi Organizer</span> dengan tema{" "}
+              <span className="text-cyan-400 font-bold">"Discover Your Talent, Inspire the Nation"</span>
+            </p>
 
             {/* Participant Counter */}
             <div className="mt-8 sm:mt-12 px-2">
@@ -385,81 +378,72 @@ export default function Home() {
               </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Mentor Acting */}
-              <div className="text-center space-y-6">
-                <div className="space-y-4">
-                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
-                    <img
-                      src="/images/mentor-mario-conk.jpg"
-                      alt="Mario Aconk"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Mario Aconk</h3>
-                    <p className="text-slate-300 font-semibold">Mentor Acting</p>
-                    <p className="text-slate-400 text-sm mt-2">Mario Maulana (Mario Aconk) adalah aktor berpengalaman yang lahir 11 Maret 1981 di Bandar Lampung. Dikenal dari film-film ternama seperti Viva JKT48 (2014), My Love My Enemy (2021), dan Wanita Istimewa (2025). Siap membimbing peserta kategori Acting dengan teknik akting profesional.</p>
-                    <a
-                      href="https://www.instagram.com/marioaconk"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
-                    >
-                      @marioaconk
-                    </a>
-                  </div>
+              <div className="space-y-4">
+                <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                  <img
+                    src="/images/mentor-igo-pentury.jpg"
+                    alt="Igo Pentury"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-mono font-bold text-cyan-400">Igo Pentury</h3>
+                  <p className="text-slate-300 font-semibold">Mentor Vokal</p>
+                  <p className="text-slate-400 text-sm mt-2">Penyanyi pemenang pertama Indonesian Idol musim keenam (2010). Berpengalaman dalam industri musik Indonesia dan siap membimbing peserta kategori Vokal dengan teknik bernyanyi profesional.</p>
+                  <a
+                    href="https://www.instagram.com/igopentury_real"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                  >
+                    @igopentury_real
+                  </a>
                 </div>
               </div>
 
-              {/* Mentor Vocal */}
-              <div className="text-center space-y-6">
-                <div className="space-y-4">
-                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
-                    <img
-                      src="/images/mentor-igo-pentury.jpg"
-                      alt="Igo Pentury"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Igo Pentury</h3>
-                    <p className="text-slate-300 font-semibold">Mentor Vokal</p>
-                    <p className="text-slate-400 text-sm mt-2">Penyanyi pemenang pertama Indonesian Idol musim keenam (2010) dengan pengalaman musik profesional. Siap membimbing peserta kategori Vokal dengan teknik vokal dan interpretasi lagu.</p>
-                    <a
-                      href="https://www.instagram.com/igopentury_real"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
-                    >
-                      @igopentury_real
-                    </a>
-                  </div>
+              <div className="space-y-4">
+                <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                  <img
+                    src="/images/mentor-velisya-sonya.jpg"
+                    alt="Velisya Sonya"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-mono font-bold text-cyan-400">Velisya Sonya</h3>
+                  <p className="text-slate-300 font-semibold">Mentor Model</p>
+                  <p className="text-slate-400 text-sm mt-2">2nd Runner-Up Miss Universe Asia 2025. Model profesional dengan pengalaman internasional, siap membimbing peserta kategori Model dengan standar industri fashion global.</p>
+                  <a
+                    href="https://www.instagram.com/velisya.sonya"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                  >
+                    @velisya.sonya
+                  </a>
                 </div>
               </div>
 
-              {/* Mentor Model */}
-              <div className="text-center space-y-6">
-                <div className="space-y-4">
-                  <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
-                    <img
-                      src="/images/mentor-velisya-sonya.jpg"
-                      alt="Velisya Sonya"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-mono font-bold text-cyan-400">Velisya Sonya</h3>
-                    <p className="text-slate-300 font-semibold">Mentor Model</p>
-                    <p className="text-slate-400 text-sm mt-2">Model profesional dan multi-talented talent dengan pengalaman di ajang kecantikan internasional. 2nd Runner-Up Miss Universe Asia 2025. Siap membimbing peserta kategori Model dengan postur, catwalk, dan presentation skills.</p>
-                    <a
-                      href="https://www.instagram.com/velisya.sonya"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
-                    >
-                      @velisya.sonya
-                    </a>
-                  </div>
+              <div className="space-y-4">
+                <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                  <img
+                    src="/images/mentor-mario-conk.jpg"
+                    alt="Mario Aconk"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-mono font-bold text-cyan-400">Mario Aconk</h3>
+                  <p className="text-slate-300 font-semibold">Mentor Acting</p>
+                  <p className="text-slate-400 text-sm mt-2">Mario Maulana (Mario Aconk) adalah aktor berpengalaman yang lahir 11 Maret 1981 di Bandar Lampung. Dikenal dari film-film ternama seperti Viva JKT48 (2014), My Love My Enemy (2021), dan Wanita Istimewa (2025). Siap membimbing peserta kategori Acting dengan teknik akting profesional.</p>
+                  <a
+                    href="https://www.instagram.com/marioaconk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-3 text-cyan-400 hover:text-pink-500 transition-colors font-mono text-sm"
+                  >
+                    @marioaconk
+                  </a>
                 </div>
               </div>
             </div>
@@ -621,7 +605,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Partner & Sponsorship Section */}
+      {/* Partner Section */}
       {activeSection === "partner" && (
         <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
           <div className="absolute inset-0 opacity-20">
@@ -631,60 +615,57 @@ export default function Home() {
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="relative z-10 container mx-auto px-6 space-y-16">
+          <div className="relative z-10 container mx-auto px-6 space-y-12">
             <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
               <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-                PARTNER & SPONSOR
+                PARTNER
               </span>
             </h2>
-
-            {/* Official Partner */}
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-2xl font-mono font-bold text-cyan-400 mb-8 text-center">🤝 Official Partner</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
-                  {[
-                    { name: "PT. Pandawa Kreasi Organizer", icon: "🎬" },
-                    { name: "Partner 2", icon: "🎵" },
-                    { name: "Partner 3", icon: "📸" },
-                    { name: "Partner 4", icon: "🎭" },
-                  ].map((partner) => (
-                    <div
-                      key={partner.name}
-                      className="p-6 border border-cyan-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
-                    >
-                      <div className="text-4xl">{partner.icon}</div>
-                      <p className="text-sm text-slate-300 font-mono">{partner.name}</p>
-                    </div>
-                  ))}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+              {[
+                { name: "PT. Pandawa Kreasi Organizer", icon: "🎬" },
+                { name: "Partner 2", icon: "🎵" },
+                { name: "Partner 3", icon: "📸" },
+                { name: "Partner 4", icon: "🎭" },
+              ].map((partner) => (
+                <div
+                  key={partner.name}
+                  className="p-6 border border-cyan-400/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                >
+                  <div className="text-4xl">{partner.icon}</div>
+                  <p className="text-sm text-slate-300 font-mono">{partner.name}</p>
                 </div>
-              </div>
+              ))}
             </div>
-
-            {/* Media Support */}
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-2xl font-mono font-bold text-pink-500 mb-8 text-center">📺 Media Support</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
-                  {[
-                    { name: "TikTok", icon: "🎬" },
-                    { name: "Instagram", icon: "📱" },
-                    { name: "YouTube", icon: "▶️" },
-                    { name: "Media Partner", icon: "📡" },
-                  ].map((media) => (
-                    <div
-                      key={media.name}
-                      className="p-6 border border-pink-500/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
-                    >
-                      <div className="text-4xl">{media.icon}</div>
-                      <p className="text-sm text-slate-300 font-mono">{media.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
             </div>
+          </div>
+        </section>
+      )}
 
-            {/* Sponsors */}
+      {/* Sponsor Section */}
+      {activeSection === "sponsor" && (
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="/images/map-indonesia.png"
+              alt="Indonesia Map"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative z-10 container mx-auto px-6 space-y-12">
+            <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
+              <span className="bg-gradient-to-r from-purple-500 to-pink-400 bg-clip-text text-transparent">
+                SPONSOR
+              </span>
+            </h2>
             <div className="space-y-8">
               <div>
                 <h3 className="text-2xl font-mono font-bold text-purple-400 mb-8 text-center">💎 Platinum Sponsor</h3>
@@ -703,13 +684,75 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+              <div>
+                <h3 className="text-2xl font-mono font-bold text-purple-300 mb-8 text-center">🥈 Gold Sponsor</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 items-center justify-center">
+                  {[
+                    { name: "Gold Sponsor 1", icon: "⭐" },
+                    { name: "Gold Sponsor 2", icon: "🎯" },
+                    { name: "Gold Sponsor 3", icon: "🏆" },
+                  ].map((sponsor) => (
+                    <div
+                      key={sponsor.name}
+                      className="p-6 border border-purple-300/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                    >
+                      <div className="text-4xl">{sponsor.icon}</div>
+                      <p className="text-sm text-slate-300 font-mono">{sponsor.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-
             <div className="flex justify-center mt-12">
               <Button
                 onClick={() => handleMenuClick("hero")}
                 variant="outline"
-                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
+                className="border-purple-400 text-purple-400 hover:bg-purple-400/10 font-mono font-bold"
+              >
+                ↑ Kembali ke Home
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Support Section */}
+      {activeSection === "support" && (
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="/images/map-indonesia.png"
+              alt="Indonesia Map"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative z-10 container mx-auto px-6 space-y-12">
+            <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
+              <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
+                SUPPORT & MEDIA
+              </span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+              {[
+                { name: "TikTok", icon: "🎬" },
+                { name: "Instagram", icon: "📱" },
+                { name: "YouTube", icon: "▶️" },
+                { name: "Media Partner", icon: "📡" },
+              ].map((media) => (
+                <div
+                  key={media.name}
+                  className="p-6 border border-pink-500/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
+                >
+                  <div className="text-4xl">{media.icon}</div>
+                  <p className="text-sm text-slate-300 font-mono">{media.name}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={() => handleMenuClick("hero")}
+                variant="outline"
+                className="border-pink-400 text-pink-400 hover:bg-pink-400/10 font-mono font-bold"
               >
                 ↑ Kembali ke Home
               </Button>
