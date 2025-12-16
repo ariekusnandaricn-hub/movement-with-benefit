@@ -24,7 +24,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
 
-  // Animate counter every 15 seconds starting from 0
+  // Animate counter every 15 seconds starting from 0, stop at 1000
   useEffect(() => {
     // Start with 0
     setParticipantCount(0);
@@ -33,13 +33,22 @@ export default function Home() {
     // Set first update after 15 seconds
     const firstTimeout = setTimeout(() => {
       currentCount += 20;
-      setParticipantCount(currentCount);
+      if (currentCount <= 1000) {
+        setParticipantCount(currentCount);
+      } else {
+        setParticipantCount(1000);
+      }
     }, 15000);
     
     // Then update every 15 seconds
     const interval = setInterval(() => {
-      currentCount += 20;
-      setParticipantCount(currentCount);
+      if (currentCount < 1000) {
+        currentCount += 20;
+        if (currentCount > 1000) {
+          currentCount = 1000;
+        }
+        setParticipantCount(currentCount);
+      }
     }, 15000);
     
     return () => {
