@@ -729,18 +729,16 @@ export default function Home() {
                 SUPPORT & MEDIA
               </span>
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-3xl mx-auto">
               {[
-                { name: "TikTok", icon: "🎬" },
-                { name: "Instagram", icon: "📱" },
-                { name: "YouTube", icon: "▶️" },
-                { name: "Media Partner", icon: "📡" },
+                { name: "Balik Kanan", image: "/images/support-balikkanan.png" },
+                { name: "Titik Seni Production", image: "/images/support-titikseni.png" },
               ].map((media) => (
                 <div
                   key={media.name}
                   className="p-6 border border-pink-500/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
                 >
-                  <div className="text-4xl">{media.icon}</div>
+                  <img src={media.image} alt={media.name} className="h-24 w-auto mx-auto object-contain" />
                   <p className="text-sm text-slate-300 font-mono">{media.name}</p>
                 </div>
               ))}
@@ -774,18 +772,16 @@ export default function Home() {
                 MEDIA PARTNER
               </span>
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-3xl mx-auto">
               {[
-                { name: "TikTok", icon: "🎬" },
-                { name: "Instagram", icon: "📱" },
-                { name: "YouTube", icon: "▶️" },
-                { name: "Media Partner", icon: "📡" },
+                { name: "Balik Kanan", image: "/images/support-balikkanan.png" },
+                { name: "Titik Seni Production", image: "/images/support-titikseni.png" },
               ].map((media) => (
                 <div
                   key={media.name}
                   className="p-6 border border-pink-500/30 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors text-center space-y-3"
                 >
-                  <div className="text-4xl">{media.icon}</div>
+                  <img src={media.image} alt={media.name} className="h-24 w-auto mx-auto object-contain" />
                   <p className="text-sm text-slate-300 font-mono">{media.name}</p>
                 </div>
               ))}
