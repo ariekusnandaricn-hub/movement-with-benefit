@@ -156,15 +156,13 @@ export default function Home() {
 
             {/* Participant Counter */}
             <div className="mt-8 sm:mt-12 px-2">
-              <div className="inline-flex items-center gap-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg px-6 py-4">
-                <div className="text-center">
-                  <p className="text-3xl sm:text-4xl font-mono font-black bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">2,847</p>
-                  <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1">Peserta Terdaftar</p>
-                </div>
-                <div className="hidden sm:block w-px h-12 bg-cyan-400/20"></div>
-                <div className="text-sm text-slate-300">
-                  <p className="font-mono font-semibold">✨ Bergabunglah dengan ribuan talenta</p>
-                  <p className="text-xs text-slate-400 mt-1">dari seluruh Indonesia</p>
+              <div className="inline-flex items-center gap-4 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-400/20 border border-pink-500/30 rounded-full px-8 py-5 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">👥</div>
+                  <div className="text-left">
+                    <p className="text-xs sm:text-sm text-slate-300 font-mono">Peserta Terdaftar</p>
+                    <p className="text-2xl sm:text-3xl font-mono font-black bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">2,847</p>
+                  </div>
                 </div>
               </div>
             </div>
