@@ -426,7 +426,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-4">
-                <div className="relative overflow-hidden rounded-lg h-80 md:h-96">
+                <div className="relative overflow-hidden rounded-lg" style={{ height: '550px' }}>
                   <img
                     src="/images/mentor-mario-aconk.jpg"
                     alt="Mario Aconk"
