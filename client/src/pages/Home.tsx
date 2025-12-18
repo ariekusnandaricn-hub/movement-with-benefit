@@ -34,7 +34,7 @@ export default function Home() {
         const baseCount = data.result?.data?.json?.count || 0;
         // Add random increment (5-15) to make it look more natural
         const randomIncrement = Math.floor(Math.random() * 11) + 5; // 5-15
-        const newCount = Math.max(300, baseCount + randomIncrement);
+        const newCount = baseCount < 300 ? 300 + randomIncrement : baseCount + randomIncrement;
         setParticipantCount(newCount);
       } catch (error) {
         console.error('Failed to fetch participant count:', error);
