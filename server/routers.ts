@@ -6,7 +6,7 @@ import { z } from "zod";
 import { registrations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
-import { like, eq, and } from "drizzle-orm";
+import { like, eq, and, desc } from "drizzle-orm";
 import { generateInvoiceId, generatePaymentAmount, getCategoryCode, generateParticipantNumber } from "./utils/provinceCodeMapping";
 import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
@@ -319,6 +319,88 @@ export const appRouter = router({
           message: input.isApproved
             ? "Pembayaran diverifikasi dan notifikasi telah dikirim!"
             : "Pembayaran ditolak",
+        };
+      }),
+  }),
+
+  admin: router({
+    getRegistrations: publicProcedure
+      .input(z.object({
+        search: z.string().optional(),
+        category: z.enum(["Acting", "Vocal", "Model"]).optional(),
+        province: z.string().optional(),
+        paymentStatus: z.enum(["pending", "pending_verification", "verified", "rejected", "paid", "failed"]).optional(),
+      }))
+      .query(async ({ input, ctx }) => {
+        // Check if user is admin
+        if (!ctx.user || ctx.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        let whereConditions = [];
+        
+        if (input.search) {
+          whereConditions.push(
+            like(registrations.fullName, `%${input.search}%`)
+          );
+        }
+        
+        if (input.category) {
+          whereConditions.push(eq(registrations.category, input.category));
+        }
+        
+        if (input.province) {
+          whereConditions.push(eq(registrations.province, input.province));
+        }
+        
+        if (input.paymentStatus) {
+          whereConditions.push(eq(registrations.paymentStatus, input.paymentStatus));
+        }
+
+        if (whereConditions.length === 0) {
+          return await db.select().from(registrations);
+        }
+
+        if (whereConditions.length === 1) {
+          return await db.select().from(registrations).where(whereConditions[0]);
+        }
+
+        return await db.select().from(registrations).where(
+          and(...whereConditions)
+        );
+      }),
+
+    updatePaymentStatus: publicProcedure
+      .input(z.object({
+        registrationId: z.string(),
+        paymentStatus: z.enum(["pending", "pending_verification", "verified", "rejected", "paid", "failed"]),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Check if user is admin
+        if (!ctx.user || ctx.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const registrationId = parseInt(input.registrationId, 10);
+        if (isNaN(registrationId)) {
+          throw new Error("Invalid registration ID");
+        }
+
+        await db.update(registrations)
+          .set({
+            paymentStatus: input.paymentStatus,
+          })
+          .where(eq(registrations.id, registrationId));
+
+        return {
+          success: true,
+          message: "Status pembayaran berhasil diupdate",
         };
       }),
   }),

@@ -1,194 +1,349 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import DashboardLayout from "@/components/DashboardLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Loader2, Download } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Search, Download } from "lucide-react";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
+import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const { user, loading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
+  const [filters, setFilters] = useState({
+    province: "",
+    category: "",
+    paymentStatus: "",
+    search: "",
+  });
 
-  const { data: registrations, isLoading } = trpc.registration.list.useQuery(
-    { search: searchTerm, category: categoryFilter !== "all" ? (categoryFilter as "Acting" | "Vocal" | "Model") : undefined },
-    { enabled: isAuthenticated && user?.role === "admin" }
+  const { data: registrations, isLoading, refetch } = trpc.admin.getRegistrations.useQuery(
+    {
+      province: filters.province || undefined,
+      category: filters.category as any || undefined,
+      paymentStatus: filters.paymentStatus as any || undefined,
+      search: filters.search || undefined,
+    },
+    {
+      enabled: !!user && user.role === "admin",
+    }
   );
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  const updatePaymentStatus = trpc.admin.updatePaymentStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status pembayaran berhasil diupdate");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
-        <Card className="bg-slate-800/50 border-cyan-400/20">
-          <CardContent className="pt-6">
-            <p className="text-center text-cyan-400">Anda tidak memiliki akses ke halaman ini.</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  const stats = {
-    total: registrations?.length || 0,
-    acting: registrations?.filter((r: any) => r.category === "Acting").length || 0,
-    vocal: registrations?.filter((r: any) => r.category === "Vocal").length || 0,
-    model: registrations?.filter((r: any) => r.category === "Model").length || 0,
-    paid: registrations?.filter((r: any) => r.paymentStatus === "paid").length || 0,
-    pending: registrations?.filter((r: any) => r.paymentStatus === "pending").length || 0,
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <p className="text-muted-foreground">Silakan login untuk mengakses dashboard</p>
+        <Button asChild>
+          <a href={getLoginUrl()}>Login</a>
+        </Button>
+      </div>
+    );
+  }
+
+  if (user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Unauthorized</h1>
+        <p className="text-muted-foreground">Anda tidak memiliki akses ke halaman ini</p>
+        <Button onClick={() => setLocation("/")}>Kembali ke Home</Button>
+      </div>
+    );
+  }
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case "paid":
+        return <Badge className="bg-green-500">Lunas</Badge>;
+      case "pending":
+        return <Badge className="bg-yellow-500">Pending</Badge>;
+      case "failed":
+        return <Badge className="bg-red-500">Gagal</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
   };
 
+  const provinces = [
+    "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
+    "Jambi", "Sumatera Selatan", "Bangka Belitung", "Bengkulu", "Lampung",
+    "DKI Jakarta", "Jawa Barat", "Banten", "Jawa Tengah", "DI Yogyakarta",
+    "Jawa Timur", "Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur",
+    "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur",
+    "Kalimantan Utara", "Sulawesi Utara", "Gorontalo", "Sulawesi Tengah",
+    "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara", "Maluku",
+    "Maluku Utara", "Papua", "Papua Barat", "Papua Tengah", "Papua Pegunungan",
+    "Papua Selatan", "Papua Barat Daya"
+  ];
+
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-mono font-bold text-white">
-            <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-              ADMIN DASHBOARD
-            </span>
-          </h1>
-          <p className="text-slate-400 mt-2">Kelola data registrasi peserta audisi</p>
+    <div className="min-h-screen bg-background p-8">
+      <div className="container max-w-7xl">
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Kelola semua pendaftaran peserta audisi</p>
+          </div>
+          <Button onClick={() => setLocation("/")} variant="outline">
+            Kembali ke Home
+          </Button>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="bg-slate-800/50 border-cyan-400/20">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Total Registrasi</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Peserta</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.total}</p>
+              <div className="text-2xl font-bold">{registrations?.length || 0}</div>
             </CardContent>
           </Card>
-
-          <Card className="bg-slate-800/50 border-cyan-400/20">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Acting</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pembayaran Lunas</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.acting}</p>
+              <div className="text-2xl font-bold text-green-500">
+                {registrations?.filter((r: any) => r.paymentStatus === "paid").length || 0}
+              </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-slate-800/50 border-cyan-400/20">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Vocal</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.vocal}</p>
+              <div className="text-2xl font-bold text-yellow-500">
+                {registrations?.filter((r: any) => r.paymentStatus === "pending").length || 0}
+              </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-slate-800/50 border-cyan-400/20">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Model</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Gagal</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.model}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-cyan-400/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Pembayaran Lunas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.paid}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-cyan-400/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-cyan-400">Menunggu Pembayaran</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-white">{stats.pending}</p>
+              <div className="text-2xl font-bold text-red-500">
+                {registrations?.filter((r: any) => r.paymentStatus === "failed").length || 0}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <Input
-            placeholder="Cari nama atau email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-slate-700/50 border-cyan-400/20 text-white"
-          />
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-slate-700/50 border border-cyan-400/20 text-white rounded px-3 py-2"
-          >
-            <option value="all">Semua Kategori</option>
-            <option value="Acting">Acting</option>
-            <option value="Vocal">Vocal</option>
-            <option value="Model">Model</option>
-          </select>
-        </div>
-
-        {/* Registrations Table */}
-        <Card className="bg-slate-800/50 border-cyan-400/20">
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-cyan-400">Daftar Registrasi</CardTitle>
+            <CardTitle>Filter & Search</CardTitle>
+            <CardDescription>Filter pendaftaran berdasarkan kriteria</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cari nama atau nomor..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="pl-10"
+                />
+              </div>
+
+              <Select value={filters.province} onValueChange={(value) => setFilters({ ...filters, province: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Semua Provinsi" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Semua Provinsi</SelectItem>
+                  {provinces.map((province) => (
+                    <SelectItem key={province} value={province}>{province}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Semua Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Semua Kategori</SelectItem>
+                  <SelectItem value="Acting">Acting</SelectItem>
+                  <SelectItem value="Vocal">Vocal</SelectItem>
+                  <SelectItem value="Model">Model</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.paymentStatus} onValueChange={(value) => setFilters({ ...filters, paymentStatus: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Semua Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Semua Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Lunas</SelectItem>
+                  <SelectItem value="failed">Gagal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setFilters({ province: "", category: "", paymentStatus: "", search: "" })}
+              >
+                Reset Filter
+              </Button>
+              <Button 
+                variant="outline" 
+                className="ml-auto"
+                onClick={() => {
+                  if (!registrations || registrations.length === 0) {
+                    toast.error("Tidak ada data untuk diexport");
+                    return;
+                  }
+
+                  const excelData = registrations.map((reg: any) => ({
+                    "No. Registrasi": reg.registrationNumber,
+                    "No. Peserta": reg.participantNumber || reg.invoiceId || "-",
+                    "Nama Lengkap": reg.fullName,
+                    "Email": reg.email,
+                    "WhatsApp": reg.whatsappNumber,
+                    "Kategori": reg.category,
+                    "Provinsi": reg.province,
+                    "Jenis Kelamin": reg.gender,
+                    "Tempat Lahir": reg.birthPlace,
+                    "Tanggal Lahir": reg.birthDate,
+                    "Alamat": reg.address,
+                    "Profesi": reg.profession,
+                    "Status Pembayaran": reg.paymentStatus,
+                    "NIK": reg.nik || "-",
+                    "Tanggal Daftar": new Date(reg.createdAt).toLocaleString("id-ID"),
+                  }));
+
+                  const ws = XLSX.utils.json_to_sheet(excelData);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, "Registrations");
+
+                  const filename = `registrations_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+                  XLSX.writeFile(wb, filename);
+                  toast.success("Data berhasil diexport ke Excel");
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export to Excel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Daftar Pendaftaran</CardTitle>
+            <CardDescription>
+              Total: {registrations?.length || 0} pendaftaran
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="animate-spin text-cyan-400" size={32} />
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : registrations && registrations.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-cyan-400/20">
-                      <th className="text-left py-3 px-4 text-cyan-400">No. Registrasi</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Nama</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Email</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Kategori</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Provinsi</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Status Pembayaran</th>
-                      <th className="text-left py-3 px-4 text-cyan-400">Tanggal Daftar</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>No. Registrasi</TableHead>
+                      <TableHead>No. Peserta</TableHead>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>Kategori</TableHead>
+                      <TableHead>Provinsi</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>WhatsApp</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {registrations.map((reg: any) => (
-                      <tr key={reg.id} className="border-b border-cyan-400/10 hover:bg-slate-700/30 transition-colors">
-                        <td className="py-3 px-4 text-white font-mono text-xs">{reg.registrationNumber}</td>
-                        <td className="py-3 px-4 text-white">{reg.fullName}</td>
-                        <td className="py-3 px-4 text-slate-300 text-xs">{reg.email}</td>
-                        <td className="py-3 px-4">
-                          <span className="bg-pink-500/20 text-pink-300 px-2 py-1 rounded text-xs">
-                            {reg.category}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-300 text-xs">{reg.province}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            reg.paymentStatus === "paid"
-                              ? "bg-green-500/20 text-green-300"
-                              : reg.paymentStatus === "pending"
-                              ? "bg-yellow-500/20 text-yellow-300"
-                              : "bg-red-500/20 text-red-300"
-                          }`}>
-                            {reg.paymentStatus === "paid" ? "Lunas" : reg.paymentStatus === "pending" ? "Menunggu" : "Gagal"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-300 text-xs">
-                          {new Date(reg.createdAt).toLocaleDateString("id-ID")}
-                        </td>
-                      </tr>
+                      <TableRow key={reg.id}>
+                        <TableCell className="font-mono text-sm">{reg.registrationNumber}</TableCell>
+                        <TableCell className="font-mono text-sm font-bold text-primary">{reg.participantNumber || reg.invoiceId || "-"}</TableCell>
+                        <TableCell className="font-medium">{reg.fullName}</TableCell>
+                        <TableCell>{reg.category}</TableCell>
+                        <TableCell>{reg.province}</TableCell>
+                        <TableCell className="text-sm">{reg.email}</TableCell>
+                        <TableCell className="text-sm">{reg.whatsappNumber}</TableCell>
+                        <TableCell>{getPaymentStatusBadge(reg.paymentStatus)}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={reg.paymentStatus}
+                            onValueChange={(value) => {
+                              updatePaymentStatus.mutate({
+                                registrationId: reg.id,
+                                paymentStatus: value as any,
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="paid">Lunas</SelectItem>
+                              <SelectItem value="failed">Gagal</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             ) : (
-              <p className="text-center py-8 text-slate-400">Tidak ada data registrasi</p>
+              <div className="text-center py-8 text-muted-foreground">
+                Tidak ada pendaftaran ditemukan
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
