@@ -1,4 +1,11 @@
 import "dotenv/config";
+
+// Swap DATABASE_URL with PRODUCTION_DB_URL if available
+if (process.env.PRODUCTION_DB_URL) {
+  process.env.DATABASE_URL = process.env.PRODUCTION_DB_URL;
+  console.log("[Startup] Using PRODUCTION_DB_URL as DATABASE_URL for real-time sync");
+}
+
 import express from "express";
 import { createServer } from "http";
 import net from "net";
