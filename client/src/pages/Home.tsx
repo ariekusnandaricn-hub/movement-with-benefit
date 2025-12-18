@@ -22,7 +22,7 @@ export default function Home() {
 
   const [activeSection, setActiveSection] = useState<Section>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [participantCount, setParticipantCount] = useState(0);
+  const [participantCount, setParticipantCount] = useState(300);
 
   // Counter starts at 300 and increases by random amount every 5 minutes, no limit
   useEffect(() => {
