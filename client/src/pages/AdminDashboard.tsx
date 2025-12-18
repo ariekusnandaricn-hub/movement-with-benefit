@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
+import { useWebSocket } from "@/hooks/useWebSocket";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -34,6 +35,18 @@ export default function AdminDashboard() {
     category: "",
     paymentStatus: "",
     search: "",
+  });
+
+  // WebSocket for real-time updates
+  useWebSocket({
+    onNewRegistration: () => {
+      console.log("New registration received, refetching...");
+      refetch();
+    },
+    onPaymentStatusUpdate: () => {
+      console.log("Payment status updated, refetching...");
+      refetch();
+    },
   });
 
   const { data: registrations, isLoading, refetch } = trpc.admin.getRegistrations.useQuery(
@@ -51,9 +64,9 @@ export default function AdminDashboard() {
   const updatePaymentStatus = trpc.admin.updatePaymentStatus.useMutation({
     onSuccess: () => {
       toast.success("Status pembayaran berhasil diupdate");
-      refetch();
+      // WebSocket will handle the refetch via broadcast
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message);
     },
   });
@@ -119,7 +132,7 @@ export default function AdminDashboard() {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Kelola semua pendaftaran peserta audisi</p>
+            <p className="text-muted-foreground">Kelola semua pendaftaran peserta audisi (Real-time)</p>
           </div>
           <Button onClick={() => setLocation("/")} variant="outline">
             Kembali ke Home

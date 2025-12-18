@@ -11,6 +11,7 @@ import { generateInvoiceId, generatePaymentAmount, getCategoryCode, generatePart
 import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
 import { sendPaymentVerificationEmailViaResend } from "./utils/resendEmailService";
+import { broadcastNewRegistration, broadcastPaymentStatusUpdate } from "./_core/websocket";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -198,6 +199,22 @@ export const appRouter = router({
           );
         } catch (error) {
           console.error("Failed to send notifications:", error);
+        }
+
+        // Broadcast new registration to admin dashboard
+        try {
+          broadcastNewRegistration({
+            registrationNumber,
+            fullName: input.fullName,
+            category: input.category,
+            province: input.province,
+            email: input.email,
+            participantNumber,
+            paymentStatus: "pending",
+            createdAt: new Date(),
+          });
+        } catch (error) {
+          console.error("Failed to broadcast registration:", error);
         }
 
         return {
@@ -392,11 +409,31 @@ export const appRouter = router({
           throw new Error("Invalid registration ID");
         }
 
+        const reg = await db
+          .select()
+          .from(registrations)
+          .where(eq(registrations.id, registrationId))
+          .limit(1);
+
         await db.update(registrations)
           .set({
             paymentStatus: input.paymentStatus,
           })
           .where(eq(registrations.id, registrationId));
+
+        try {
+          if (reg && reg.length > 0) {
+            broadcastPaymentStatusUpdate({
+              registrationId: reg[0].id,
+              registrationNumber: reg[0].registrationNumber,
+              fullName: reg[0].fullName,
+              paymentStatus: input.paymentStatus,
+              updatedAt: new Date(),
+            });
+          }
+        } catch (error) {
+          console.error("Failed to broadcast payment status:", error);
+        }
 
         return {
           success: true,
