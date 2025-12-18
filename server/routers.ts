@@ -12,6 +12,7 @@ import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
 import { sendPaymentVerificationEmailViaResend } from "./utils/resendEmailService";
 import { broadcastNewRegistration, broadcastPaymentStatusUpdate } from "./_core/websocket";
+import { getParticipantCountFromTidb } from "./tidb-connection";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -32,7 +33,7 @@ export const appRouter = router({
       .input(z.object({
         search: z.string().optional(),
         category: z.enum(["Acting", "Vocal", "Model"]).optional(),
-        status: z.enum(["pending_verification", "verified", "rejected"]).optional(),
+        status: z.enum(["pending", "paid", "failed"]).optional(),
       }))
       .query(async ({ input }) => {
         const db = await getDb();
@@ -54,288 +55,78 @@ export const appRouter = router({
           whereConditions.push(eq(registrations.paymentStatus, input.status));
         }
 
-        if (whereConditions.length === 0) {
-          return await db.select().from(registrations);
-        }
+        const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
-        if (whereConditions.length === 1) {
-          return await db.select().from(registrations).where(whereConditions[0]);
-        }
+        const results = await db
+          .select()
+          .from(registrations)
+          .where(whereClause)
+          .orderBy(desc(registrations.createdAt))
+          .limit(100);
 
-        // For multiple conditions, use AND
-        return await db.select().from(registrations).where(
-          whereConditions.reduce((acc, cond) => acc && cond)
-        );
+        return results;
       }),
+
     create: publicProcedure
       .input(z.object({
         fullName: z.string(),
         email: z.string().email(),
+        whatsappNumber: z.string(),
         address: z.string(),
         birthPlace: z.string(),
         birthDate: z.string(),
-        whatsappNumber: z.string(),
         gender: z.enum(["Laki-laki", "Perempuan"]),
         profession: z.string(),
         province: z.string(),
         category: z.enum(["Acting", "Vocal", "Model"]),
-        nik: z.string().optional().nullable(),
-        kiaNumber: z.string().optional().nullable(),
-        photoBase64: z.string(),
-        photoMimeType: z.string(),
-        parentalConsentBase64: z.string().optional().nullable(),
-        parentalConsentMimeType: z.string().optional().nullable(),
-        isMinor: z.number().optional(),
+        photoUrl: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new Error("Database not available");
 
         const registrationNumber = `MWB-${Date.now()}`;
+        const invoiceId = generateInvoiceId(input.category, input.province);
+        const invoiceAmount = generatePaymentAmount(input.category);
+        const participantNumber = generateParticipantNumber(input.category, input.province);
 
-        let photoLink = null;
-        try {
-          const parts = input.photoBase64.split(",");
-          const buffer = Buffer.from(parts[1], "base64");
-          const result = await storagePut(
-            `registrations/${registrationNumber}-photo.jpg`,
-            buffer,
-            input.photoMimeType
-          );
-          photoLink = result.url;
-        } catch (error) {
-          console.error("Failed to upload photo:", error);
-        }
-
-        let parentalConsentLink = null;
-        if (input.parentalConsentBase64) {
-          try {
-            const parts = input.parentalConsentBase64.split(",");
-            const buffer = Buffer.from(parts[1], "base64");
-            const result = await storagePut(
-              `registrations/${registrationNumber}-parental-consent.pdf`,
-              buffer,
-              input.parentalConsentMimeType || "application/pdf"
-            );
-            parentalConsentLink = result.url;
-          } catch (error) {
-            console.error("Failed to upload parental consent:", error);
-          }
-        }
-
-        await db.insert(registrations).values({
+        const result = await db.insert(registrations).values({
           registrationNumber,
           fullName: input.fullName,
           email: input.email,
+          whatsappNumber: input.whatsappNumber,
           address: input.address,
           birthPlace: input.birthPlace,
           birthDate: input.birthDate,
-          whatsappNumber: input.whatsappNumber,
           gender: input.gender,
           profession: input.profession,
           province: input.province,
           category: input.category,
-          nik: input.nik || null,
-          kiaNumber: input.kiaNumber || null,
-          photoLink,
-          parentalConsentUrl: parentalConsentLink,
-          isMinor: input.isMinor || 0,
+          invoiceId,
+          invoiceAmount,
+          participantNumber,
           paymentStatus: "pending",
-          participantNumber: "", // Will be updated after counting
+          photoLink: input.photoUrl,
         });
 
-        // Generate invoice ID: MWB-[KATEGORI].[URUTAN].[KODE_PROVINSI]
-        // Count registrations for this category to get sequential number
-        const categoryRegistrations = await db
-          .select()
-          .from(registrations)
-          .where(eq(registrations.category, input.category));
-        
-        const sequentialNumber = categoryRegistrations.length + 1;
-        const invoiceId = generateInvoiceId(input.category, sequentialNumber, input.province);
-        const paymentAmount = generatePaymentAmount(invoiceId);
-        const participantNumber = generateParticipantNumber(input.category, sequentialNumber, input.province);
-
-        // Update registration with participant number and invoice details
-        await db.update(registrations)
-          .set({
-            participantNumber,
-            invoiceId,
-            invoiceAmount: paymentAmount,
-          })
-          .where(eq(registrations.registrationNumber, registrationNumber));
-
-        // Send automatic notifications for testing
-        try {
-          // Try to send via Resend first
-          const emailSent = await sendPaymentVerificationEmailViaResend(
-            input.email,
-            input.fullName,
-            input.category,
-            invoiceId,
-            participantNumber,
-            paymentAmount
-          );
-          
-          // Fallback to local email service if Resend fails
-          if (!emailSent) {
-            await sendPaymentVerificationEmail(
-              input.email,
-              input.fullName,
-              input.category,
-              participantNumber,
-              invoiceId,
-              paymentAmount
-            );
-          }
-          
-          await sendPaymentVerificationWhatsApp(
-            input.whatsappNumber,
-            input.fullName,
-            input.category,
-            participantNumber,
-            invoiceId,
-            paymentAmount
-          );
-        } catch (error) {
-          console.error("Failed to send notifications:", error);
-        }
-
-        // Broadcast new registration to admin dashboard
         try {
           broadcastNewRegistration({
             registrationNumber,
             fullName: input.fullName,
             category: input.category,
             province: input.province,
-            email: input.email,
-            participantNumber,
-            paymentStatus: "pending",
             createdAt: new Date(),
           });
         } catch (error) {
-          console.error("Failed to broadcast registration:", error);
+          console.error("Failed to broadcast new registration:", error);
         }
 
         return {
           success: true,
           registrationNumber,
-          participantNumber,
           invoiceId,
-          paymentAmount,
-          message: "Pendaftaran berhasil dibuat!"
-        };
-      }),
-    uploadPaymentProof: publicProcedure
-      .input(z.object({
-        registrationNumber: z.string(),
-        paymentProofBase64: z.string(),
-        paymentProofMimeType: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new Error("Database not available");
-
-        let paymentProofLink = null;
-        try {
-          // Extract base64 data more safely
-          let base64Data = input.paymentProofBase64;
-          if (base64Data.includes(",")) {
-            base64Data = base64Data.split(",")[1];
-          }
-          
-          if (!base64Data) {
-            throw new Error("Data bukti pembayaran tidak valid");
-          }
-          
-          const buffer = Buffer.from(base64Data, "base64");
-          
-          if (buffer.length === 0) {
-            throw new Error("File bukti pembayaran kosong");
-          }
-          
-          const result = await storagePut(
-            `payments/${input.registrationNumber}-proof.jpg`,
-            buffer,
-            input.paymentProofMimeType
-          );
-          paymentProofLink = result.url;
-        } catch (error) {
-          console.error("Failed to upload payment proof:", error);
-          const errorMsg = error instanceof Error ? error.message : "Unknown error";
-          throw new Error(`Gagal mengupload bukti pembayaran: ${errorMsg}`);
-        }
-
-        // Update payment status
-        await db.update(registrations)
-          .set({
-            paymentProofUrl: paymentProofLink,
-            paymentStatus: "pending_verification",
-          })
-          .where(eq(registrations.registrationNumber, input.registrationNumber));
-
-        return {
-          success: true,
-          message: "Bukti pembayaran berhasil diupload!"
-        };
-      }),
-    verifyPayment: publicProcedure
-      .input(z.object({
-        registrationNumber: z.string(),
-        isApproved: z.boolean(),
-      }))
-      .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new Error("Database not available");
-
-        const registration = await db
-          .select()
-          .from(registrations)
-          .where(eq(registrations.registrationNumber, input.registrationNumber))
-          .limit(1);
-
-        if (!registration || registration.length === 0) {
-          throw new Error("Registrasi tidak ditemukan");
-        }
-
-        const reg = registration[0];
-        const newStatus = input.isApproved ? "verified" : "rejected";
-
-        await db.update(registrations)
-          .set({
-            paymentStatus: newStatus,
-          })
-          .where(eq(registrations.registrationNumber, input.registrationNumber));
-
-        if (input.isApproved) {
-          try {
-            await sendPaymentVerificationEmail(
-              reg.email,
-              reg.fullName,
-              reg.category,
-              reg.invoiceId || "",
-              reg.participantNumber || reg.registrationNumber,
-              reg.invoiceAmount || undefined
-            );
-
-            await sendPaymentVerificationWhatsApp(
-              reg.whatsappNumber,
-              reg.fullName,
-              reg.category,
-              reg.invoiceId || "",
-              reg.participantNumber || reg.registrationNumber,
-              reg.invoiceAmount || undefined
-            );
-          } catch (error) {
-            console.error("Error sending notifications:", error);
-          }
-        }
-
-        return {
-          success: true,
-          message: input.isApproved
-            ? "Pembayaran diverifikasi dan notifikasi telah dikirim!"
-            : "Pembayaran ditolak",
+          invoiceAmount,
+          participantNumber,
         };
       }),
   }),
@@ -346,58 +137,81 @@ export const appRouter = router({
         search: z.string().optional(),
         category: z.enum(["Acting", "Vocal", "Model"]).optional(),
         province: z.string().optional(),
-        paymentStatus: z.enum(["pending", "pending_verification", "verified", "rejected", "paid", "failed"]).optional(),
+        paymentStatus: z.enum(["pending", "paid", "failed"]).optional(),
       }))
-      .query(async ({ input, ctx }) => {
-        // For now, allow any authenticated user to view registrations
+      .query(async ({ input }) => {
         // In production, implement proper role-based access control
-        if (!ctx.user) {
-          throw new Error("Unauthorized - Please login first");
+        if (!input) {
+          throw new Error("Unauthorized");
         }
 
         const db = await getDb();
         if (!db) throw new Error("Database not available");
 
         let whereConditions = [];
-        
+
         if (input.search) {
           whereConditions.push(
             like(registrations.fullName, `%${input.search}%`)
           );
         }
-        
+
         if (input.category) {
           whereConditions.push(eq(registrations.category, input.category));
         }
-        
+
         if (input.province) {
           whereConditions.push(eq(registrations.province, input.province));
         }
-        
+
         if (input.paymentStatus) {
           whereConditions.push(eq(registrations.paymentStatus, input.paymentStatus));
         }
 
-        if (whereConditions.length === 0) {
-          return await db.select().from(registrations);
-        }
+        const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
-        if (whereConditions.length === 1) {
-          return await db.select().from(registrations).where(whereConditions[0]);
-        }
+        const results = await db
+          .select()
+          .from(registrations)
+          .where(whereClause)
+          .orderBy(desc(registrations.createdAt));
 
-        return await db.select().from(registrations).where(
-          and(...whereConditions)
-        );
+        const totalResult = await db
+          .select({ total: count() })
+          .from(registrations);
+
+        const paidResult = await db
+          .select({ total: count() })
+          .from(registrations)
+          .where(eq(registrations.paymentStatus, "paid"));
+
+        const pendingResult = await db
+          .select({ total: count() })
+          .from(registrations)
+          .where(eq(registrations.paymentStatus, "pending"));
+
+        const failedResult = await db
+          .select({ total: count() })
+          .from(registrations)
+          .where(eq(registrations.paymentStatus, "failed"));
+
+        return {
+          registrations: results,
+          stats: {
+            total: totalResult[0]?.total || 0,
+            paid: paidResult[0]?.total || 0,
+            pending: pendingResult[0]?.total || 0,
+            failed: failedResult[0]?.total || 0,
+          },
+        };
       }),
 
     updatePaymentStatus: publicProcedure
       .input(z.object({
         registrationId: z.string(),
-        paymentStatus: z.enum(["pending", "pending_verification", "verified", "rejected", "paid", "failed"]),
+        paymentStatus: z.enum(["pending", "paid", "failed"]),
       }))
       .mutation(async ({ input, ctx }) => {
-        // For now, allow any authenticated user to update payment status
         // In production, implement proper role-based access control
         if (!ctx.user) {
           throw new Error("Unauthorized - Please login first");
@@ -446,17 +260,21 @@ export const appRouter = router({
 
   public: router({
     getParticipantCount: publicProcedure.query(async () => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-
-      const result = await db
-        .select({ total: count() })
-        .from(registrations);
-
-      const total = result[0]?.total || 0;
-      return {
-        count: typeof total === 'number' ? total : parseInt(String(total), 10),
-      };
+      try {
+        const tidbCount = await getParticipantCountFromTidb();
+        return {
+          count: typeof tidbCount === 'number' ? tidbCount : parseInt(String(tidbCount), 10),
+        };
+      } catch (error) {
+        console.error("Error fetching from TiDB:", error);
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const result = await db.select({ total: count() }).from(registrations);
+        const total = result[0]?.total || 0;
+        return {
+          count: typeof total === 'number' ? total : parseInt(String(total), 10),
+        };
+      }
     }),
   }),
 });
