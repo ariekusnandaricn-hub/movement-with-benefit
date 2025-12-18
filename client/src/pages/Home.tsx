@@ -24,21 +24,18 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
 
-  // Counter starts at 300 and increases by 10 every 5 minutes, stops at 1000
+  // Counter starts at 300 and increases by random amount every 5 minutes, no limit
   useEffect(() => {
     // Start with 300
     setParticipantCount(300);
     let currentCount = 300;
     
-    // Update every 5 minutes (300000 ms)
+    // Update every 5 minutes (300000 ms) with random increment
     const interval = setInterval(() => {
-      if (currentCount < 1000) {
-        currentCount += 10;
-        if (currentCount > 1000) {
-          currentCount = 1000;
-        }
-        setParticipantCount(currentCount);
-      }
+      // Random increment between 5 and 15 participants
+      const randomIncrement = Math.floor(Math.random() * 11) + 5;
+      currentCount += randomIncrement;
+      setParticipantCount(currentCount);
     }, 300000);
     
     return () => {
