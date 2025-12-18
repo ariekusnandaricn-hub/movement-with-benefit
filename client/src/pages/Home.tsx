@@ -23,19 +23,32 @@ export default function Home() {
 
   const [activeSection, setActiveSection] = useState<Section>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [participantCount, setParticipantCount] = useState(0);
+  const [participantCount, setParticipantCount] = useState(300);
 
-  // Fetch participant count from database
-  const { data: countData } = trpc.public.getParticipantCount.useQuery(undefined, {
-    refetchInterval: 30000,
-  });
-
-  // Update counter when data is available
+  // Fetch participant count from database every 5 minutes with random increment
   useEffect(() => {
-    if (countData?.count) {
-      setParticipantCount(countData.count);
-    }
-  }, [countData]);
+    const fetchAndUpdateCount = async () => {
+      try {
+        const response = await fetch('/api/trpc/public.getParticipantCount');
+        const data = await response.json();
+        const baseCount = data.result?.data?.json?.count || 0;
+        // Add random increment (5-15) to make it look more natural
+        const randomIncrement = Math.floor(Math.random() * 11) + 5; // 5-15
+        const newCount = Math.max(300, baseCount + randomIncrement);
+        setParticipantCount(newCount);
+      } catch (error) {
+        console.error('Failed to fetch participant count:', error);
+      }
+    };
+    
+    // Fetch immediately on mount
+    fetchAndUpdateCount();
+    
+    // Then fetch every 5 minutes (300000ms)
+    const interval = setInterval(fetchAndUpdateCount, 300000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const menuItems = [
     { id: "about", label: "About" },
