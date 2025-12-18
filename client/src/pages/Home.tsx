@@ -24,35 +24,24 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
 
-  // Animate counter every 15 seconds starting from 0, stop at 1000
+  // Counter starts at 300 and increases by 10 every 5 minutes, stops at 1000
   useEffect(() => {
-    // Start with 0
-    setParticipantCount(0);
-    let currentCount = 0;
+    // Start with 300
+    setParticipantCount(300);
+    let currentCount = 300;
     
-    // Set first update after 15 seconds
-    const firstTimeout = setTimeout(() => {
-      currentCount += 20;
-      if (currentCount <= 1000) {
-        setParticipantCount(currentCount);
-      } else {
-        setParticipantCount(1000);
-      }
-    }, 15000);
-    
-    // Then update every 15 seconds
+    // Update every 5 minutes (300000 ms)
     const interval = setInterval(() => {
       if (currentCount < 1000) {
-        currentCount += 20;
+        currentCount += 10;
         if (currentCount > 1000) {
           currentCount = 1000;
         }
         setParticipantCount(currentCount);
       }
-    }, 15000);
+    }, 300000);
     
     return () => {
-      clearTimeout(firstTimeout);
       clearInterval(interval);
     };
   }, []);
