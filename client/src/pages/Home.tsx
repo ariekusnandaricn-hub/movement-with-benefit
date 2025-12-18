@@ -3,6 +3,7 @@ import { Menu, X, MessageCircle, Mail } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
 
 /**
  * Design Philosophy: Match exact reference design
@@ -22,26 +23,19 @@ export default function Home() {
 
   const [activeSection, setActiveSection] = useState<Section>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [participantCount, setParticipantCount] = useState(300);
+  const [participantCount, setParticipantCount] = useState(0);
 
-  // Counter starts at 300 and increases by random amount every 5 minutes, no limit
+  // Fetch participant count from database
+  const { data: countData } = trpc.public.getParticipantCount.useQuery(undefined, {
+    refetchInterval: 30000,
+  });
+
+  // Update counter when data is available
   useEffect(() => {
-    // Start with 300
-    setParticipantCount(300);
-    let currentCount = 300;
-    
-    // Update every 5 minutes (300000 ms) with random increment
-    const interval = setInterval(() => {
-      // Random increment between 5 and 15 participants
-      const randomIncrement = Math.floor(Math.random() * 11) + 5;
-      currentCount += randomIncrement;
-      setParticipantCount(currentCount);
-    }, 300000);
-    
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+    if (countData?.count) {
+      setParticipantCount(countData.count);
+    }
+  }, [countData]);
 
   const menuItems = [
     { id: "about", label: "About" },

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { registrations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
-import { like, eq, and, desc } from "drizzle-orm";
+import { like, eq, and, desc, count } from "drizzle-orm";
 import { generateInvoiceId, generatePaymentAmount, getCategoryCode, generateParticipantNumber } from "./utils/provinceCodeMapping";
 import { sendPaymentVerificationEmail, sendPaymentReminderEmail } from "./utils/emailNotification";
 import { sendPaymentVerificationWhatsApp, sendPaymentReminderWhatsApp } from "./utils/whatsappNotification";
@@ -442,6 +442,22 @@ export const appRouter = router({
           message: "Status pembayaran berhasil diupdate",
         };
       }),
+  }),
+
+  public: router({
+    getParticipantCount: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const result = await db
+        .select({ total: count() })
+        .from(registrations);
+
+      const total = result[0]?.total || 0;
+      return {
+        count: typeof total === 'number' ? total : parseInt(String(total), 10),
+      };
+    }),
   }),
 });
 
