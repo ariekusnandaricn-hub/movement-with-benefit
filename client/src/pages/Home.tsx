@@ -47,24 +47,18 @@ function JudgesSection({ onBack }: { onBack: () => void }) {
                   {judge ? (
                     <>
                       {judge.photoUrl && (
-                        <div className="relative w-full aspect-square rounded-lg overflow-hidden border-2 border-cyan-400/30">
-                          <img src={judge.photoUrl} alt={judge.name} className="w-full h-full object-cover" />
+                        <div className="relative w-full rounded-lg overflow-hidden border-2 border-cyan-400/30">
+                          <img src={judge.photoUrl} alt={judge.name} className="w-full h-auto object-cover" />
                         </div>
                       )}
                       <div className="space-y-2">
-                        <h3 className="text-xl font-mono font-bold text-cyan-400">{judge.title}</h3>
-                        <p className="text-lg font-bold text-white">{judge.name}</p>
+                        <h3 className="text-2xl md:text-3xl font-mono font-bold text-cyan-400">{judge.title}</h3>
+                        <p className="text-xl font-bold text-white">{judge.name}</p>
                         <p className="text-slate-300 text-sm">{category}</p>
-                        {judge.description && <p className="text-slate-400 text-xs leading-relaxed line-clamp-4">{judge.description}</p>}
+                        {judge.description && <p className="text-slate-400 text-xs leading-relaxed line-clamp-5">{judge.description}</p>}
                       </div>
                     </>
-                  ) : (
-                    <div className="space-y-4">
-                      <h3 className="text-2xl md:text-4xl font-mono font-bold text-cyan-400">Purwa Caraka</h3>
-                      <p className="text-slate-300">{category}</p>
-                      <p className="text-slate-400 text-sm"></p>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
