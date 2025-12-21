@@ -46,9 +46,9 @@ function JudgesSection({ onBack }: { onBack: () => void }) {
                 <div key={category} className="text-center space-y-6">
                   {judge ? (
                     <>
-                      {judge.photo_url && (
+                      {judge.photoUrl && (
                         <div className="relative w-full aspect-square rounded-lg overflow-hidden border-2 border-cyan-400/30">
-                          <img src={judge.photo_url} alt={judge.name} className="w-full h-full object-cover" />
+                          <img src={judge.photoUrl} alt={judge.name} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <div className="space-y-2">
