@@ -102,3 +102,20 @@ export const votes = mysqlTable("votes", {
 
 export type Vote = typeof votes.$inferSelect;
 export type InsertVote = typeof votes.$inferInsert;
+/**
+ * Judges table for storing jury information
+ */
+export const judges = mysqlTable("judges", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: mysqlEnum("category", ["Acting", "Vocal", "Model"]).notNull(),
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  photoUrl: text("photoUrl"),
+  orderIndex: int("order_index").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Judge = typeof judges.$inferSelect;
+export type InsertJudge = typeof judges.$inferInsert;

@@ -1,0 +1,13 @@
+{
+  "query": "SELECT * FROM judges;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3AXeqsdQcNQXbRB.a74bad8313a3 --database EUcgYjJW3SJffyj6kwpu9p --execute SELECT * FROM judges;",
+  "rows": [],
+  "messages": [
+    "1\tPurwa Caraka\tVocal\tJuri Utama\tKomposer, arranger, pianis, dan pendidik musik senior Indonesia sekaligus pendiri Purwa Caraka Music Studio (PCMS), jaringan sekolah musik nasional yang telah melahirkan ribuan penyanyi dan musisi profesional lintas generasi.",
+    "Dengan pengalaman panjang di bidang vokal dan musikalitas, ia dikenal memiliki otoritas tinggi dalam menilai teknik vokal, karakter suara, interpretasi lagu, serta potensi artistik seorang penyanyi. Pendekatannya menggabungkan disiplin akademis musik dengan kebutuhan industri kreatif.",
+    "Pada Movement With Benefit 2026, Purwa Caraka dipercaya sebagai Juri Utama Vokal, menetapkan standar penilaian yang objektif, profesional, dan berorientasi pada pengembangan talenta jangka panjang.\t\t1\t2025-12-21 08:39:35\t2025-12-21 08:39:35"
+  ],
+  "stdout": "id\tname\tcategory\ttitle\tdescription\tphoto_url\torder_index\tcreatedAt\tupdatedAt\n1\tPurwa Caraka\tVocal\tJuri Utama\tKomposer, arranger, pianis, dan pendidik musik senior Indonesia sekaligus pendiri Purwa Caraka Music Studio (PCMS), jaringan sekolah musik nasional yang telah melahirkan ribuan penyanyi dan musisi profesional lintas generasi.\n\nDengan pengalaman panjang di bidang vokal dan musikalitas, ia dikenal memiliki otoritas tinggi dalam menilai teknik vokal, karakter suara, interpretasi lagu, serta potensi artistik seorang penyanyi. Pendekatannya menggabungkan disiplin akademis musik dengan kebutuhan industri kreatif.\n\nPada Movement With Benefit 2026, Purwa Caraka dipercaya sebagai Juri Utama Vokal, menetapkan standar penilaian yang objektif, profesional, dan berorientasi pada pengembangan talenta jangka panjang.\t\t1\t2025-12-21 08:39:35\t2025-12-21 08:39:35\n",
+  "stderr": "",
+  "execution_time_ms": 1528
+}

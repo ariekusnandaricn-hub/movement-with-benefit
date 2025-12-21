@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, MessageCircle, Mail } from "lucide-react";
+import { Menu, X, MessageCircle, Mail, Loader2 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -14,6 +14,71 @@ import { trpc } from "@/lib/trpc";
  */
 
 type Section = "hero" | "about" | "guest" | "judges" | "mentor" | "timeline" | "peserta" | "voter" | "partner" | "sponsor" | "support" | "media";
+
+function JudgesSection({ onBack }: { onBack: () => void }) {
+  const { data: judges, isLoading } = trpc.public.getJudges.useQuery();
+
+  const judgesByCategory = {
+    Acting: judges?.filter((j) => j.category === "Acting") || [],
+    Vocal: judges?.filter((j) => j.category === "Vocal") || [],
+    Model: judges?.filter((j) => j.category === "Model") || [],
+  };
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
+      <div className="absolute inset-0 opacity-20">
+        <img src="/images/map-indonesia.png" alt="Indonesia Map" className="w-full h-full object-cover" />
+      </div>
+      <div className="relative z-10 container mx-auto px-6 space-y-12">
+        <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
+          <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">JURI</span>
+        </h2>
+        {isLoading ? (
+          <div className="flex justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {["Acting", "Vocal", "Model"].map((category) => {
+              const categoryJudges = judgesByCategory[category as keyof typeof judgesByCategory];
+              const judge = categoryJudges[0];
+              return (
+                <div key={category} className="text-center space-y-6">
+                  {judge ? (
+                    <>
+                      {judge.photo_url && (
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden border-2 border-cyan-400/30">
+                          <img src={judge.photo_url} alt={judge.name} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-mono font-bold text-cyan-400">{judge.title}</h3>
+                        <p className="text-lg font-bold text-white">{judge.name}</p>
+                        <p className="text-slate-300 text-sm">{category}</p>
+                        {judge.description && <p className="text-slate-400 text-xs leading-relaxed line-clamp-3">{judge.description}</p>}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-mono font-bold text-cyan-400">Juri Utama</h3>
+                      <p className="text-slate-300">{category}</p>
+                      <p className="text-slate-400 text-sm">Coming Soon</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div className="flex justify-center mt-12">
+          <Button onClick={onBack} variant="outline" className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold">
+            ↑ Kembali ke Home
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   // The userAuth hooks provides authentication state
@@ -350,44 +415,7 @@ export default function Home() {
       )}
 
       {/* Judges Section */}
-      {activeSection === "judges" && (
-        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20">
-          <div className="absolute inset-0 opacity-20">
-            <img
-              src="/images/map-indonesia.png"
-              alt="Indonesia Map"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="relative z-10 container mx-auto px-6 space-y-12">
-            <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
-              <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-                JURI
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {["Acting", "Vocal", "Model"].map((category) => (
-                <div key={category} className="text-center space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-mono font-bold text-cyan-400">Juri Utama</h3>
-                    <p className="text-slate-300">{category}</p>
-                    <p className="text-slate-400 text-sm">Coming Soon</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-12">
-              <Button
-                onClick={() => handleMenuClick("hero")}
-                variant="outline"
-                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 font-mono font-bold"
-              >
-                ↑ Kembali ke Home
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
+      {activeSection === "judges" && <JudgesSection onBack={() => handleMenuClick("hero")} />}
 
       {/* Mentor Section */}
       {activeSection === "mentor" && (

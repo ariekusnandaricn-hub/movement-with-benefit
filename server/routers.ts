@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { registrations } from "../drizzle/schema";
+import { registrations, judges } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
 import { like, eq, and, desc, count } from "drizzle-orm";
@@ -274,6 +274,17 @@ export const appRouter = router({
         return {
           count: typeof total === 'number' ? total : parseInt(String(total), 10),
         };
+      }
+    }),
+    getJudges: publicProcedure.query(async () => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const judgesList = await db.select().from(judges);
+        return judgesList;
+      } catch (error) {
+        console.error("Error fetching judges:", error);
+        return [];
       }
     }),
   }),
