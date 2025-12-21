@@ -55,14 +55,14 @@ function JudgesSection({ onBack }: { onBack: () => void }) {
                         <h3 className="text-xl font-mono font-bold text-cyan-400">{judge.title}</h3>
                         <p className="text-lg font-bold text-white">{judge.name}</p>
                         <p className="text-slate-300 text-sm">{category}</p>
-                        {judge.description && <p className="text-slate-400 text-xs leading-relaxed line-clamp-3">{judge.description}</p>}
+                        {judge.description && <p className="text-slate-400 text-xs leading-relaxed line-clamp-4">{judge.description}</p>}
                       </div>
                     </>
                   ) : (
                     <div className="space-y-4">
-                      <h3 className="text-xl font-mono font-bold text-cyan-400">Juri Utama</h3>
+                      <h3 className="text-2xl md:text-4xl font-mono font-bold text-cyan-400">Purwa Caraka</h3>
                       <p className="text-slate-300">{category}</p>
-                      <p className="text-slate-400 text-sm">Coming Soon</p>
+                      <p className="text-slate-400 text-sm"></p>
                     </div>
                   )}
                 </div>
