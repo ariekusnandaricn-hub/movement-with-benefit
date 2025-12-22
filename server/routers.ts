@@ -86,9 +86,10 @@ export const appRouter = router({
         if (!db) throw new Error("Database not available");
 
         const registrationNumber = `MWB-${Date.now()}`;
-        const invoiceId = generateInvoiceId(input.category, input.province);
-        const invoiceAmount = generatePaymentAmount(input.category);
-        const participantNumber = generateParticipantNumber(input.category, input.province);
+        const sequenceNumber = Date.now() % 100; // Use last 2 digits of timestamp as sequence
+        const invoiceId = generateInvoiceId(input.category, sequenceNumber, input.province);
+        const invoiceAmount = generatePaymentAmount(invoiceId);
+        const participantNumber = generateParticipantNumber(input.category, sequenceNumber, input.province);
 
         const result = await db.insert(registrations).values({
           registrationNumber,
