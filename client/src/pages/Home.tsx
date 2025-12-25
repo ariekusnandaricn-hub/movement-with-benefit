@@ -111,7 +111,7 @@ export default function Home() {
 
   const menuItems = [
     { id: "about", label: "About" },
-    { id: "guest", label: "Guest & Host" },
+    { id: "guest", label: "Host" },
     { id: "judges", label: "Juri" },
     { id: "mentor", label: "Mentor" },
     { id: "timeline", label: "Timeline" },
