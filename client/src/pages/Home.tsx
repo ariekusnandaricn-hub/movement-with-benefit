@@ -379,19 +379,20 @@ export default function Home() {
           <div className="relative z-10 container mx-auto px-6 space-y-12">
             <h2 className="font-mono font-black text-5xl md:text-6xl text-center">
               <span className="bg-gradient-to-r from-pink-500 to-cyan-400 bg-clip-text text-transparent">
-                GUEST STAR & HOST
+                HOST
               </span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="text-center space-y-4">
-                <div className="text-6xl">🎬</div>
-                <h3 className="text-2xl font-mono font-bold text-cyan-400">GUEST STAR</h3>
-                <p className="text-slate-300">Coming Soon</p>
+                <div className="text-6xl">🎤</div>
+                <h3 className="text-2xl font-mono font-bold text-cyan-400">HOST SEMIFINAL</h3>
+                <p className="text-slate-300">Profesional industri entertainment yang akan membimbing peserta di babak semifinal</p>
+                <p className="text-slate-400 text-sm">Coming Soon</p>
               </div>
               <div className="text-center space-y-4">
                 <div className="text-6xl">🎤</div>
-                <h3 className="text-2xl font-mono font-bold text-cyan-400">HOST UTAMA</h3>
-                <p className="text-slate-300">Profesional industri entertainment yang akan membimbing dan menilai peserta</p>
+                <h3 className="text-2xl font-mono font-bold text-cyan-400">HOST GRAND FINAL</h3>
+                <p className="text-slate-300">Profesional industri entertainment yang akan memandu grand final dan pengumuman pemenang</p>
                 <p className="text-slate-400 text-sm">Coming Soon</p>
               </div>
             </div>
