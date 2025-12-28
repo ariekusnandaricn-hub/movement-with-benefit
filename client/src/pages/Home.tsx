@@ -117,10 +117,10 @@ export default function Home() {
     { id: "timeline", label: "Timeline" },
     { id: "peserta", label: "Peserta" },
     { id: "voter", label: "Voter" },
-    { id: "partner", label: "Partner" },
+    { id: "partner", label: "Partners" },
     { id: "sponsor", label: "Sponsor" },
     { id: "support", label: "Support" },
-    { id: "media", label: "Media Partner" },
+    { id: "media", label: "Media Partners" },
   ];
 
   const handleMenuClick = (section: Section) => {
